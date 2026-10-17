@@ -1,6 +1,6 @@
 import { useCrmStore } from '../../store/crmStore'
 import AddLeadModal from '../leads/AddLeadModal'
-import AddProjectModal from './AddProjectModal'
+import AddProjectModal from '../projects/AddProjectModal'
 import BookAppointmentModal from '../appointments/BookAppointmentModal'
 import LeadDetailModal from '../leads/LeadDetailModal'
 

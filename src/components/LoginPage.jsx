@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Avatar } from '../components/ui/Avatar'
-import { Button } from '../components/ui/Button'
-import { SegmentedControl } from '../components/ui/SegmentedControl'
-import ThemeSwitch from '../components/ui/ThemeSwitch'
+import { Avatar } from './ui/Avatar'
+import { Button } from './ui/Button'
+import ThemeSwitch from './ui/ThemeSwitch'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
-import { DEMO_PASSWORD } from '../data/seed'
+import { resetPassword } from '../supabase/auth'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+
 
 /** Input with a leading icon + inline error message */
 function AuthField({ label, icon, error, errorText, right, children }) {
@@ -34,17 +35,15 @@ const inputClass = (error) =>
       : 'border-outline-subtle focus:border-accent focus:ring-accent/20'
   }`
 
-export default function LoginPage() {
+const LoginPage = () => {
   const { isAuthenticated, login } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
 
   const [view, setView] = useState('signin') // signin | forgot | sent
-  const [role, setRole] = useState('admin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [remember, setRemember] = useState(true)
   const [showPass, setShowPass] = useState(false)
   const [errors, setErrors] = useState({})
   const [alert, setAlert] = useState('')
@@ -62,16 +61,16 @@ export default function LoginPage() {
     if (next.email || next.password) return
 
     setLoading(true)
-    const res = await login({ email, password, role, remember })
+    const res = await login({ email, password })
     setLoading(false)
     if (!res.ok) return setAlert(res.error)
     toast(`Welcome back, ${res.user.name.split(' ')[0]}!`, 'success')
     navigate(location.state?.from?.pathname || '/', { replace: true })
   }
 
-  const fillDemo = () => {
-    setEmail(role === 'admin' ? 'alex.mercer@estatepulse.com' : 'agent@estatepulse.com')
-    setPassword(DEMO_PASSWORD)
+  const fillSample = (kind) => {
+    setEmail(SAMPLE[kind].email)
+    setPassword(SAMPLE[kind].password)
     setErrors({})
     setAlert('')
   }
@@ -82,9 +81,15 @@ export default function LoginPage() {
     setForgotError(!ok)
     if (!ok) return
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setLoading(false)
-    setView('sent')
+    setAlert('')
+    try {
+      await resetPassword(forgotEmail)
+      setView('sent')
+    } catch (err) {
+      setAlert(err.message || 'Could not send the reset link. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -157,16 +162,6 @@ export default function LoginPage() {
                 <h2 className="mt-[0.4rem] text-[1.6rem] font-extrabold tracking-[-0.04em] text-on-surface">Sign in to your workspace</h2>
                 <p className="mt-1 mb-5 text-[0.84rem] text-on-surface-muted">Pick up where you left off: leads, visits and deals are waiting.</p>
 
-                <SegmentedControl
-                  className="mb-5 w-full [&>button]:flex-1"
-                  value={role}
-                  onChange={setRole}
-                  options={[
-                    { value: 'admin', label: 'Administrator', icon: 'fa-user-shield' },
-                    { value: 'agent', label: 'Agent', icon: 'fa-id-badge' },
-                  ]}
-                />
-
                 {alert && (
                   <div role="alert" className="mb-4 flex gap-2 rounded-md border border-error/30 bg-error-soft p-3 text-[0.8rem] font-semibold text-error">
                     <i className="fas fa-circle-exclamation mt-0.5" /><span>{alert}</span>
@@ -206,11 +201,6 @@ export default function LoginPage() {
                     )}
                   </AuthField>
 
-                  <label className="mb-5 flex cursor-pointer items-center gap-2 text-[0.8rem] text-on-surface-variant">
-                    <input type="checkbox" className="size-4 accent-accent" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
-                    Keep me signed in on this device
-                  </label>
-
                   <Button type="submit" block loading={loading} className="h-11">
                     <span>{loading ? 'Signing in…' : 'Sign in'}</span> {!loading && <i className="fas fa-arrow-right" />}
                   </Button>
@@ -221,11 +211,7 @@ export default function LoginPage() {
                 </div>
                
 
-                <div className="mt-5 rounded-md border border-dashed border-outline bg-surface-dim p-3 text-[0.74rem] leading-relaxed text-on-surface-variant">
-                  <b className="text-on-surface">Demo access.</b> Admin <code className="num">alex.mercer@estatepulse.com</code> · Agent <code className="num">agent@estatepulse.com</code> · password <code className="num">estate123</code>
-                  <br />
-                  <button type="button" onClick={fillDemo} className="mt-1 font-bold text-accent hover:underline">Fill demo credentials</button>
-                </div>
+               
               </>
             )}
 
@@ -234,6 +220,11 @@ export default function LoginPage() {
                 <span className="kicker text-[0.66rem] text-brand-text">Account recovery</span>
                 <h2 className="mt-[0.4rem] text-[1.6rem] font-extrabold tracking-[-0.04em] text-on-surface">Reset your password</h2>
                 <p className="mt-1 mb-5 text-[0.84rem] text-on-surface-muted">Enter your work email and we’ll send a secure link to set a new password.</p>
+                {alert && (
+                  <div role="alert" className="mb-4 flex gap-2 rounded-md border border-error/30 bg-error-soft p-3 text-[0.8rem] font-semibold text-error">
+                    <i className="fas fa-circle-exclamation mt-0.5" /><span>{alert}</span>
+                  </div>
+                )}
                 <form onSubmit={submitForgot} noValidate>
                   <AuthField label="Work email" icon="far fa-envelope" error={forgotError} errorText="Enter a valid email address.">
                     {(err) => (
@@ -281,3 +272,4 @@ export default function LoginPage() {
     </div>
   )
 }
+export default LoginPage

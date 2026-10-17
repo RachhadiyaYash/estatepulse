@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
-import { Card, CardHeader } from '../components/ui/Card'
-import { Badge, ScoreBadge, StageBadge } from '../components/ui/Badge'
-import { Button } from '../components/ui/Button'
-import KpiCard from '../components/ui/KpiCard'
-import AppointmentItem from '../components/appointments/AppointmentItem'
-import LeadQuickActions from '../components/leads/LeadQuickActions'
-import { useCrmStore } from '../store/crmStore'
+import { Card, CardHeader } from '../ui/Card'
+import { Badge, ScoreBadge, StageBadge } from '../ui/Badge'
+import { Button } from '../ui/Button'
+import KpiCard from '../ui/KpiCard'
+import AppointmentItem from '../appointments/AppointmentItem'
+import LeadQuickActions from '../leads/LeadQuickActions'
+import { useCrmStore } from '../../store/crmStore'
 
 export default function DashboardPage() {
   const { isAgent, visibleLeads, visibleAppointments, openModal } = useCrmStore()

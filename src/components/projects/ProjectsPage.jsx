@@ -34,7 +34,7 @@ export default function ProjectsPage() {
             <option value="Under Construction">Under Construction</option>
             <option value="Pre-Launch">Pre-Launch</option>
           </FilterSelect>
-          <Button className="h-[34px]" onClick={() => openModal('addProject')}>
+          <Button className="h-8.5" onClick={() => openModal('addProject')}>
             <i className="fas fa-plus" /> Add New Development
           </Button>
         </div>
@@ -45,7 +45,7 @@ export default function ProjectsPage() {
         {list.map((p) => (
           <div key={p.id} className="flex flex-col overflow-hidden rounded-lg border border-outline-subtle bg-surface-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <div
-              className="relative flex h-[170px] flex-col justify-between bg-cover bg-center p-3"
+              className="relative flex h-42.5 flex-col justify-between bg-cover bg-center p-3"
               style={{ backgroundImage: `linear-gradient(180deg, rgba(15,15,16,0.05), rgba(15,15,16,0.55)), url('${p.cover}')` }}
             >
               <Badge tone={p.tone} className="self-start">{p.status}</Badge>
