@@ -1,9 +1,7 @@
 import { useSyncExternalStore, useMemo } from 'react'
 import {
-  AGENTS, APPOINTMENTS, CURRENT_AGENT_ID, LEADS, PROJECTS, USERS,
+  AGENTS, APPOINTMENTS, CURRENT_AGENT_ID, LEADS, USERS,
 } from '../data/seed'
-
-const uid = (prefix) => `${prefix}-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`
 
 /* ------------------------------------------------------------------ */
 /*  Toast bridge                                                       */
@@ -22,7 +20,6 @@ function initialState(role = 'admin') {
   return {
     role,
     leads: LEADS,
-    projects: PROJECTS,
     appointments: APPOINTMENTS,
     search: '',
     modal: { name: null, payload: null },
@@ -70,29 +67,6 @@ export function closeModal() {
   setState({ modal: { name: null, payload: null } })
 }
 
-export function addProject(form) {
-  const units = parseInt(form.units, 10) || 50
-  const project = {
-    id: uid('proj'),
-    name: form.name,
-    location: form.location,
-    type: form.type,
-    status: 'Pre-Launch',
-    tone: 'warning',
-    priceRange: form.price,
-    totalUnits: units,
-    availableUnits: units,
-    bookedUnits: 0,
-    completion: form.completion,
-    assignedAgents: ['agent-1', 'agent-2'],
-    cover: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80',
-    description: form.description,
-    unitTypes: ['2 BHK Luxury', '3 BHK Skyline Suite', '4 BHK Penthouse Collection'],
-  }
-  setState({ projects: [project, ...state.projects] })
-  notify('New development added to inventory!', 'success')
-}
-
 export function completeAppointment(aptId) {
   setState({
     appointments: state.appointments.map((a) =>
@@ -124,12 +98,11 @@ export function useCrmStore() {
     return {
       role: s.role, isAgent, user,
       leads: s.leads, visibleLeads,
-      projects: s.projects,
       appointments: s.appointments, visibleAppointments,
       agents: AGENTS,
       search: s.search, setSearch,
       modal: s.modal, openModal, closeModal,
-      addProject, completeAppointment,
+      completeAppointment,
     }
   }, [s])
 }

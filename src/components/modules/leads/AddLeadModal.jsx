@@ -4,16 +4,19 @@ import { Button } from "../../ui/Button";
 import { Field, FormRow, Input, Select } from "../../ui/Form";
 import { useToast } from "../../../store/useToast";
 import { addLead, serializeLead } from "../../../supabase/services/leads/leads";
-import { PROJECTS, AGENTS } from "../../../data/seed";
+import { recordLeadActivity } from "../../../supabase/services/leads/leadActivity";
+import { useProperties } from "../../../supabase/services/properties/useProperties";
+import { AGENTS } from "../../../data/seed";
 
 const AddLeadModal = ({ isOpen, onClose }) => {
   const { toast } = useToast();
+  const properties = useProperties();
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
     budget: "",
-    projectId: PROJECTS[0]?.id ?? "",
+    projectId: "",
     agentId: AGENTS[0].id,
     score: "WARM",
     source: "Google Ads",
@@ -25,13 +28,26 @@ const AddLeadModal = ({ isOpen, onClose }) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const project = PROJECTS.find((p) => p.id === form.projectId);
+      const resolvedProjectId = form.projectId || properties[0]?.id || "";
+      const project = properties.find((p) => String(p.id) === String(resolvedProjectId));
       const agent = AGENTS.find((a) => a.id === form.agentId);
-      const row = serializeLead(form, {
-        projectName: project ? project.name : "General Inquiry",
+      const row = serializeLead(
+        { ...form, projectId: resolvedProjectId },
+        {
+          projectName: project ? project.name : "General Inquiry",
         agentName: agent ? agent.name : null,
       });
-      await addLead(row);
+      const created = await addLead(row);
+      try {
+        await recordLeadActivity({
+          leadId: created.id,
+          activityType: "Lead Created",
+          stage: "new",
+          note: `Lead created from ${form.source}. Assigned to ${agent ? agent.name : "unassigned"}.`,
+        });
+      } catch (activityErr) {
+        console.error("Failed to record lead creation activity:", activityErr);
+      }
       onClose();
     } catch (err) {
       toast(err.message || "Could not create lead. Please try again.", "error");
@@ -89,7 +105,10 @@ const AddLeadModal = ({ isOpen, onClose }) => {
         <FormRow>
           <Field label="Target Development / Project">
             <Select required value={form.projectId} onChange={set("projectId")}>
-              {PROJECTS.map((p) => (
+              <option value="" disabled>
+                {properties.length === 0 ? "No developments yet — add one first" : "Select a development"}
+              </option>
+              {properties.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.location})
                 </option>
