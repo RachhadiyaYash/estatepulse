@@ -1,6 +1,6 @@
-import { Badge } from "../ui/Badge";
-import { Button, CardAction } from "../ui/Button";
-import { useCrmStore } from "../../store/crmStore";
+import { Badge } from "../../ui/Badge";
+import { Button, CardAction } from "../../ui/Button";
+import { useCrmStore } from "../../../store/crmStore";
 
 const AppointmentItem = ({ apt, compact = false }) => {
   const { completeAppointment } = useCrmStore();

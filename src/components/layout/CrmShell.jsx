@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { useToast } from '../../hooks/useToast'
-import { useAuth } from '../../hooks/useAuth'
+import { useToast } from '../../store/useToast'
+import { useAuth } from '../../store/useAuth'
 import { resetCrmStore, setToast } from '../../store/crmStore'
 import AppLayout from './AppLayout'
 

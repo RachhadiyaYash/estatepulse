@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../../store/useAuth'
 
 /**
  * Admin-only layout route. In App.jsx, wrap any admin-only route with it:

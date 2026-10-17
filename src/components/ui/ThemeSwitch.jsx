@@ -1,4 +1,4 @@
-import { useTheme } from '../theme/useTheme'
+import { useTheme } from '../context/useTheme'
 
 const OPTIONS = [
   { mode: 'light', icon: 'fa-sun', label: 'Light theme' },

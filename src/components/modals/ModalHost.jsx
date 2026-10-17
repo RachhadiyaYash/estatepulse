@@ -1,8 +1,8 @@
 import { useCrmStore } from '../../store/crmStore'
-import AddLeadModal from '../leads/AddLeadModal'
-import AddProjectModal from '../projects/AddProjectModal'
-import BookAppointmentModal from '../appointments/BookAppointmentModal'
-import LeadDetailModal from '../leads/LeadDetailModal'
+import AddLeadModal from '../modules/leads/AddLeadModal'
+import AddProjectModal from '../modules/projects/AddProjectModal'
+import BookAppointmentModal from '../modules/appointments/BookAppointmentModal'
+import LeadDetailModal from '../modules/leads/LeadDetailModal'
 
 const MODALS = {
   addLead: AddLeadModal,

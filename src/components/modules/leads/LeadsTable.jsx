@@ -1,9 +1,9 @@
-import { Avatar } from "../ui/Avatar";
-import { Badge, ScoreBadge, StageBadge } from "../ui/Badge";
+import { Avatar } from "../../ui/Avatar";
+import { Badge, ScoreBadge, StageBadge } from "../../ui/Badge";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
 import BookAppointmentModal from "../appointments/BookAppointmentModal";
-import { initials } from "../../utils/format";
+import { initials } from "../../../utils/format";
 import { useState } from "react";
 
 const HEADS = [

@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { Modal, ModalBody } from "../ui/Modal";
-import { Button } from "../ui/Button";
-import { Field, FormRow, Input, Select } from "../ui/Form";
-import { useToast } from "../../hooks/useToast";
-import { addLead, serializeLead } from "../../supabase/services/leads/leads";
-import { PROJECTS, AGENTS } from "../../data/seed";
+import { Modal, ModalBody } from "../../ui/Modal";
+import { Button } from "../../ui/Button";
+import { Field, FormRow, Input, Select } from "../../ui/Form";
+import { useToast } from "../../../store/useToast";
+import { addLead, serializeLead } from "../../../supabase/services/leads/leads";
+import { PROJECTS, AGENTS } from "../../../data/seed";
 
 const AddLeadModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
   const { toast } = useToast();
   const [form, setForm] = useState({
     name: "",
@@ -41,6 +39,8 @@ const AddLeadModal = ({ isOpen, onClose }) => {
       setSubmitting(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <Modal

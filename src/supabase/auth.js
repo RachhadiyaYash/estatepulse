@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js'
+import { useUserStore } from '../store/useUserStore'
 
 /* ------------------------------------------------------------------ */
 /*  Normalizers                                                        */
@@ -28,7 +29,7 @@ function normalizeProfile(row) {
   }
 }
 
-/** Builds the app-level session object consumed by AuthProvider / CrmShell / AdminRoute. */
+/** Builds the app-level session (with token + user + profile + role) for the store. */
 function toSession(authSession, profile) {
   if (!authSession || !profile) return null
   return {
@@ -37,6 +38,9 @@ function toSession(authSession, profile) {
     name: profile.name,
     email: profile.email,
     profile,
+    access_token: authSession.access_token,
+    refresh_token: authSession.refresh_token,
+    expires_at: authSession.expires_at,
   }
 }
 
@@ -50,35 +54,46 @@ function friendlyAuthError(error) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Profile                                                            */
+/*  Profile + "get me"                                                 */
 /* ------------------------------------------------------------------ */
 
 /** Reads the signed-in user's own profile row (RLS allows `auth.uid() = id`). */
-export async function fetchProfile(userId) {
+async function fetchProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
     .select('id, email, first_name, last_name, contact_number, role')
     .eq('id', userId)
-    .maybeSingle()
+    .single()
   if (error) throw error
   return normalizeProfile(data)
+}
+
+/**
+ * "Get me" API — resolves the current auth user + their profile row and
+ * stores the token + data in the Zustand user store (not localStorage).
+ * Throws if there is no active session.
+ */
+export async function getMe() {
+  const { data: { session: authSession } } = await supabase.auth.getSession()
+  if (!authSession) throw new Error('Not logged in')
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError) throw authError
+  if (!user) throw new Error('Not logged in')
+
+  const profile = await fetchProfile(user.id)
+  const session = toSession(authSession, profile)
+  useUserStore.getState().setAuth({ session, user, profile })
+  return { user, profile, session }
 }
 
 /* ------------------------------------------------------------------ */
 /*  Session lifecycle                                                  */
 /* ------------------------------------------------------------------ */
 
-/** Restores any persisted session + profile (used on app mount). */
-export async function getSessionProfile() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return { session: null, profile: null }
-  const profile = await fetchProfile(session.user.id)
-  return { session: toSession(session, profile), profile }
-}
-
 /**
- * Signs in with email/password, then loads the profile row.
- * Resolves { ok: true, user, session } or { ok: false, error }.
+ * Signs in with email/password, loads the profile, and stores everything
+ * in the user store. Resolves { ok: true, user, session } or { ok: false, error }.
  */
 export async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -87,26 +102,40 @@ export async function signIn(email, password) {
   })
   if (error) return { ok: false, error: friendlyAuthError(error) }
 
-  let profile
   try {
-    profile = await fetchProfile(data.user.id)
+    const profile = await fetchProfile(data.user.id)
+    const session = toSession(data.session, profile)
+    useUserStore.getState().setAuth({ session, user: data.user, profile })
+    return { ok: true, user: profile, session }
   } catch (e) {
     return { ok: false, error: `Signed in, but failed to load your profile: ${e.message}` }
   }
-  if (!profile) {
-    return {
-      ok: false,
-      error: 'No profile exists for this account. Please ask an administrator to add one.',
-    }
-  }
-  return { ok: true, user: profile, session: toSession(data.session, profile) }
 }
 
-/** Signs out and clears the Supabase session. */
+/** Signs out (closes the Supabase session) and clears the user store. */
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+  } finally {
+    useUserStore.getState().clearAuth()
+  }
   return true
+}
+
+/** Restores the session on app mount (no-op when nothing is stored). */
+export async function restoreSession() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      useUserStore.getState().clearAuth()
+      return null
+    }
+    return await getMe()
+  } catch {
+    useUserStore.getState().clearAuth()
+    return null
+  }
 }
 
 /** Sends a password-reset email via Supabase Auth. */

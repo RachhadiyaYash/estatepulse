@@ -1,9 +1,9 @@
-import { Avatar } from "../ui/Avatar";
-import { ScoreBadge } from "../ui/Badge";
+import { Avatar } from "../../ui/Avatar";
+import { ScoreBadge } from "../../ui/Badge";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
 import BookAppointmentModal from "../appointments/BookAppointmentModal";
-import { initials } from "../../utils/format";
+import { initials } from "../../../utils/format";
 import { useState } from "react";
 
 const LeadCard = ({ lead }) => {
@@ -38,7 +38,7 @@ const LeadCard = ({ lead }) => {
             </Avatar>
             <span>{lead.source}</span>
           </div>
-          <LeadQuickActions lead={lead} onBookVisit={(leadId) => setIsBookOpen(true)} />
+          <LeadQuickActions lead={lead} onBookVisit={() => setIsBookOpen(true)} />
         </div>
       </div>
 

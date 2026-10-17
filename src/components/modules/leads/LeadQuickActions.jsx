@@ -1,5 +1,5 @@
-import { CardAction } from '../ui/Button'
-import { useToast } from '../../hooks/useToast'
+import { CardAction } from '../../ui/Button'
+import { useToast } from '../../../store/useToast'
 
 const LeadQuickActions = ({ lead, schedule = true, onBookVisit }) => {
   const { toast } = useToast()

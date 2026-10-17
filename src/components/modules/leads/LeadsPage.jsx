@@ -1,14 +1,14 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Card, CardHeader } from '../ui/Card'
-import { Button } from '../ui/Button'
-import { FilterSelect, Input } from '../ui/Form'
-import { SegmentedControl } from '../ui/SegmentedControl'
-import { StageDot } from '../ui/Badge'
+import { Card, CardHeader } from '../../ui/Card'
+import { Button } from '../../ui/Button'
+import { FilterSelect, Input } from '../../ui/Form'
+import { SegmentedControl } from '../../ui/SegmentedControl'
+import { StageDot } from '../../ui/Badge'
 import LeadCard from './LeadCard'
 import LeadsTable from './LeadsTable'
 import AddLeadModal from './AddLeadModal'
-import { STAGES, AGENTS } from '../../data/seed'
-import { getLeads, deserializeLead } from '../../supabase/services/leads/leads'
+import { STAGES, AGENTS } from '../../../data/seed'
+import { getLeads, deserializeLead } from '../../../supabase/services/leads/leads'
 
 const LeadsPage = () => {
   const [leads, setLeads] = useState([])
@@ -30,6 +30,7 @@ const LeadsPage = () => {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount; setLeads runs after await, not synchronously
     loadLeads()
   }, [])
 
@@ -85,6 +86,12 @@ const LeadsPage = () => {
           />
           <div className="flex items-center gap-2">
            
+            <Input
+              placeholder="Search name, project, phone..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-56"
+            />
             <Button className="h-8.5" onClick={() => setIsAddLeadOpen(true)}>
               <i className="fas fa-plus" /> Add Lead
             </Button>

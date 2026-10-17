@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../../store/useAuth'
 
 /** Full-screen spinner shown while the Supabase session is being restored. */
 function RouteSpinner() {

@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { Card, CardHeader } from "../ui/Card";
-import { Button, CardAction } from "../ui/Button";
+import { Card, CardHeader } from "../../ui/Card";
+import { Button, CardAction } from "../../ui/Button";
 import AppointmentItem from "./AppointmentItem";
-import { useCrmStore } from "../../store/crmStore";
+import { useCrmStore } from "../../../store/crmStore";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const pad = (n) => String(n).padStart(2, "0");

@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Card, CardHeader } from '../components/ui/Card'
-import { Badge } from '../components/ui/Badge'
-import { Button, CardAction } from '../components/ui/Button'
-import { FilterSelect } from '../components/ui/Form'
-import { useCrmStore } from '../store/crmStore'
-import { useToast } from '../hooks/useToast'
+import { Card, CardHeader } from '../../ui/Card'
+import { Badge } from '../../ui/Badge'
+
+import { Button, CardAction } from '../../ui/Button'
+import { FilterSelect } from '../../ui/Form'
+import { useCrmStore } from '../../../store/crmStore'
+import { useToast } from '../../../store/useToast'
 
 function Stat({ label, value, valueClass = 'text-on-surface' }) {
   return (

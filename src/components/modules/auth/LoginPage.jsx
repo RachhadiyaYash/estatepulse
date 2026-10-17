@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Avatar } from './ui/Avatar'
-import { Button } from './ui/Button'
-import ThemeSwitch from './ui/ThemeSwitch'
-import { useAuth } from '../hooks/useAuth'
-import { useToast } from '../hooks/useToast'
-import { resetPassword } from '../supabase/auth'
+import { Avatar } from '../../ui/Avatar'
+import { Button } from '../../ui/Button'
+import ThemeSwitch from '../../ui/ThemeSwitch'
+import { useAuth } from '../../../store/useAuth'
+import { useToast } from '../../../store/useToast'
+import { resetPassword } from '../../../supabase/auth'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -68,13 +68,6 @@ const LoginPage = () => {
     navigate(location.state?.from?.pathname || '/', { replace: true })
   }
 
-  const fillSample = (kind) => {
-    setEmail(SAMPLE[kind].email)
-    setPassword(SAMPLE[kind].password)
-    setErrors({})
-    setAlert('')
-  }
-
   const submitForgot = async (e) => {
     e.preventDefault()
     const ok = EMAIL_RE.test(forgotEmail.trim())
@@ -96,17 +89,17 @@ const LoginPage = () => {
     <div className="grid min-h-screen bg-surface-base lg:grid-cols-[1.1fr_1fr]">
       {/* ============ Hero ============ */}
       <section className="relative hidden flex-col justify-between overflow-hidden bg-linear-155 from-hero-from via-hero-mid to-hero-to p-12 text-white lg:flex">
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:34px_34px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-size-[34px_34px]" />
 
         <div className="relative flex items-center gap-3">
-          <div className="flex size-[38px] items-center justify-center rounded-[11px] bg-brand text-on-brand"><i className="fas fa-city" /></div>
+          <div className="flex size-9.5 items-center justify-center rounded-[11px] bg-brand text-on-brand"><i className="fas fa-city" /></div>
           <div className="flex flex-col leading-tight">
             <strong className="text-[1.05rem] font-extrabold tracking-[-0.04em]">EstatePulse</strong>
             <span className="kicker text-[0.6rem] text-white/60">CRM Intelligence</span>
           </div>
         </div>
 
-        <div className="relative max-w-[520px]">
+        <div className="relative max-w-130">
           <div className="kicker text-[0.7rem] text-brand">Brokerage intelligence</div>
           <h1 className="mt-3 text-[2.8rem] leading-[1.08] font-extrabold tracking-[-0.045em]">
             Every lead, <em className="text-brand not-italic">every site visit,</em> one pulse.
@@ -132,7 +125,7 @@ const LoginPage = () => {
           ))}
         </div>
 
-        <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-[240px] w-full" viewBox="0 0 800 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-60 w-full" viewBox="0 0 800 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
           <path className="fill-white/5" d="M0 240V150h50V110h40v40h30V70h56v80h34V120h46V40h60v110h30V90h50v60h40V130h54V60h66v90h40V100h50v50h54V80h40v160z" />
           <g className="fill-brand/50">
             <rect x="140" y="84" width="8" height="8" /><rect x="160" y="84" width="8" height="8" /><rect x="140" y="104" width="8" height="8" />
@@ -148,14 +141,14 @@ const LoginPage = () => {
         <div className="flex items-center justify-between gap-4">
           <div className="max-lg:hidden" />
           <div className="flex items-center gap-2 text-[0.95rem] font-extrabold tracking-[-0.03em] text-on-surface lg:hidden">
-            <div className="flex size-[34px] items-center justify-center rounded-[10px] bg-brand text-[0.9rem] text-on-brand"><i className="fas fa-city" /></div>
+            <div className="flex size-8.5 items-center justify-center rounded-[10px] bg-brand text-[0.9rem] text-on-brand"><i className="fas fa-city" /></div>
             EstatePulse
           </div>
           <ThemeSwitch />
         </div>
 
         <div className="flex flex-1 items-center justify-center py-10">
-          <div className="w-full max-w-[420px] animate-fade-in rounded-xl border border-outline-subtle bg-surface-card p-8 shadow-md">
+          <div className="w-full max-w-105 animate-fade-in rounded-xl border border-outline-subtle bg-surface-card p-8 shadow-md">
             {view === 'signin' && (
               <>
                 <span className="kicker text-[0.66rem] text-brand-text">Welcome back</span>

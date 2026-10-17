@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Modal, ModalBody } from '../ui/Modal'
-import { Button } from '../ui/Button'
-import { Field, FormRow, Input, Select, Textarea } from '../ui/Form'
-import { useCrmStore } from '../../store/crmStore'
+import { Modal, ModalBody } from '../../ui/Modal'
+import { Button } from '../../ui/Button'
+import { Field, FormRow, Input, Select, Textarea } from '../../ui/Form'
+import { useCrmStore } from '../../../store/crmStore'
 
 export default function AddProjectModal() {
   const { addProject, closeModal } = useCrmStore()

@@ -1,5 +1,5 @@
-import { Card } from '../components/ui/Card'
-import { FUNNEL, LEAD_SOURCES } from '../data/seed'
+import { Card } from '../../ui/Card'
+import { FUNNEL, LEAD_SOURCES } from '../../../data/seed'
 
 // full class names so Tailwind can see them
 const FUNNEL_STYLE = {
