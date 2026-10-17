@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthContext } from './AuthContext'
 import { useUserStore } from '../../store/useUserStore'
+import { supabase } from '../../supabase/supabase'
 import { signIn, signOut, restoreSession } from '../../supabase/auth'
 
 /**
- * Thin context bridge over the Zustand user store. The token/user/profile
- * live in `useUserStore` (in-memory, not localStorage); this provider runs
- * the session-restore effect and exposes the familiar `useAuth()` shape.
+ * Thin context bridge over the Zustand user store. The Supabase session is
+ * persisted by the Supabase client, so on refresh `restoreSession()` re-seeds
+ * the in-memory store. This provider also listens for auth changes so the
+ * store's token stays in sync when Supabase refreshes it.
  */
 export default function AuthProvider({ children }) {
   const session = useUserStore((s) => s.session)
@@ -15,9 +17,10 @@ export default function AuthProvider({ children }) {
   const name = useUserStore((s) => s.name)
   const [loading, setLoading] = useState(true)
 
-  // Restore the session (if any) on first load.
   useEffect(() => {
     let cancelled = false
+
+    // Restore the session (if any) on first load.
     ;(async () => {
       try {
         await restoreSession()
@@ -27,7 +30,32 @@ export default function AuthProvider({ children }) {
         if (!cancelled) setLoading(false)
       }
     })()
-    return () => { cancelled = true }
+
+    // Keep the store in sync with Supabase. Only update the store here —
+    // don't call other Supabase methods inside this callback (can deadlock).
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, authSession) => {
+      if (event === 'SIGNED_OUT') {
+        useUserStore.getState().clearAuth()
+      } else if (event === 'TOKEN_REFRESHED' && authSession) {
+        const current = useUserStore.getState().session
+        if (current) {
+          useUserStore.setState({
+            token: authSession.access_token,
+            session: {
+              ...current,
+              access_token: authSession.access_token,
+              refresh_token: authSession.refresh_token,
+              expires_at: authSession.expires_at,
+            },
+          })
+        }
+      }
+    })
+
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+    }
   }, [])
 
   /** Signs in via Supabase, loads the profile, and populates the store. */

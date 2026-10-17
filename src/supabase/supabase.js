@@ -1,4 +1,3 @@
-
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -10,9 +9,12 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    // Keep the session in memory only — never persist the token to localStorage.
-    persistSession: false,
-    autoRefreshToken: false,
+    // Persist the session (localStorage by default) so a page refresh
+    // can restore it. To keep the login for the current tab only, add:
+    //   storage: window.sessionStorage,
+    persistSession: true,
+    // Renews the access token before it expires while the app is open.
+    autoRefreshToken: true,
     detectSessionInUrl: false,
   },
 });

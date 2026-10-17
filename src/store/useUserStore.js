@@ -1,17 +1,18 @@
 import { create } from 'zustand'
 
 /**
- * In-memory user/session store (Zustand). Deliberately NOT persisted to
- * localStorage — the token, user and profile live only for this tab session
- * and are cleared on logout. (No `persist` middleware on purpose.)
+ * In-memory user/session store (Zustand). Nothing is persisted to localStorage:
+ * the token, user and profile live only for this tab session and are cleared
+ * on logout. The in-memory Supabase session (persistSession: false) re-seeds
+ * this store on refresh via the AuthProvider restore effect.
  */
 export const useUserStore = create((set) => ({
-  session: null, // normalized: { user, role, name, email, profile, access_token, refresh_token, expires_at }
-  user: null, // raw Supabase auth user
-  profile: null, // normalized profile row
-  role: null, // 'admin' | 'agent'
-  name: null, // display name (first + last)
-  token: null, // access_token (convenience)
+  session: null,
+  user: null,
+  profile: null,
+  role: null,
+  name: null,
+  token: null,
 
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
