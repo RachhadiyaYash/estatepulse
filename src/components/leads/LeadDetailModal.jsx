@@ -14,13 +14,13 @@ const ACTIVITY_TYPES = [
 function Stat({ caption, children }) {
   return (
     <div>
-      <div className="text-[0.58rem] font-extrabold tracking-[0.1em] text-on-surface-muted uppercase">{caption}</div>
+      <div className="text-[0.58rem] font-extrabold tracking-widest text-on-surface-muted uppercase">{caption}</div>
       {children}
     </div>
   )
 }
 
-export default function LeadDetailModal() {
+const LeadDetailModal = () => {
   const { leads, modal, closeModal, openModal, updateLeadStage, addFollowup } = useCrm()
   const { toast } = useToast()
   const lead = leads.find((l) => l.id === modal.payload?.leadId)
@@ -82,7 +82,7 @@ export default function LeadDetailModal() {
 
         <div className="mb-6 flex items-center justify-between rounded-md bg-surface-dim px-4 py-3">
           <span className="text-[0.82rem] font-semibold">Current Pipeline Stage:</span>
-          <FilterSelect className="w-[220px]" value={lead.stage} onChange={(e) => updateLeadStage(lead.id, e.target.value)}>
+          <FilterSelect className="w-55" value={lead.stage} onChange={(e) => updateLeadStage(lead.id, e.target.value)}>
             {STAGES.map((s) => (
               <option key={s.key} value={s.key}>{s.step}</option>
             ))}
@@ -126,7 +126,7 @@ export default function LeadDetailModal() {
           {lead.timeline.length === 0 && <div className="text-on-surface-muted">No follow-up activity yet.</div>}
           {lead.timeline.map((item, i) => (
             <div key={i} className="relative mb-3">
-              <span className="absolute top-3.5 -left-[25px] flex size-[18px] items-center justify-center rounded-full border border-outline-subtle bg-surface-card">
+              <span className="absolute top-3.5 -left-6.25 flex size-4.5 items-center justify-center rounded-full border border-outline-subtle bg-surface-card">
                 <span className="size-1.5 rounded-full bg-accent" />
               </span>
               <div className="rounded-md border border-outline-subtle bg-surface-card p-3">
@@ -143,3 +143,5 @@ export default function LeadDetailModal() {
     </Modal>
   )
 }
+
+export default LeadDetailModal

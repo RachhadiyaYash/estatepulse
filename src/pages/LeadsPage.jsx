@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Card, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { FilterSelect } from '../components/ui/Form'
@@ -8,19 +8,34 @@ import LeadCard from '../components/leads/LeadCard'
 import LeadsTable from '../components/leads/LeadsTable'
 import { STAGES } from '../data/seed'
 import { useCrm } from '../hooks/useCrm'
+import { getLeads, deserializeLead } from '../supabase/services/leads/leads'
 
 export default function LeadsPage() {
-  const { visibleLeads, agents, search, openModal } = useCrm()
+  const { agents, search, openModal } = useCrm()
+  const [leads, setLeads] = useState([])
   const [view, setView] = useState('kanban')
   const [stage, setStage] = useState('')
   const [score, setScore] = useState('')
   const [agent, setAgent] = useState('')
 
+  useEffect(() => {
+    const loadLeads = async () => {
+      try {
+        const rows = await getLeads()
+        setLeads((rows ?? []).map(deserializeLead))
+      } catch (err) {
+        console.error('Failed to load leads:', err)
+        setLeads([])
+      }
+    }
+    loadLeads()
+  }, [])
+
   const q = search.trim().toLowerCase()
 
-  const leads = useMemo(
+  const filtered = useMemo(
     () =>
-      visibleLeads.filter(
+      leads.filter(
         (l) =>
           (!stage || l.stage === stage) &&
           (!score || l.score === score) &&
@@ -31,7 +46,7 @@ export default function LeadsPage() {
             l.phone.includes(q) ||
             l.email.toLowerCase().includes(q)),
       ),
-    [visibleLeads, stage, score, agent, q],
+    [leads, stage, score, agent, q],
   )
 
   // a global search always shows results as a table
@@ -75,7 +90,7 @@ export default function LeadsPage() {
       {activeView === 'kanban' ? (
         <div className="grid auto-cols-[minmax(260px,1fr)] grid-flow-col gap-4 overflow-x-auto p-4">
           {STAGES.map((s) => {
-            const items = leads.filter((l) => l.stage === s.key)
+            const items = filtered.filter((l) => l.stage === s.key)
             return (
               <div key={s.key} className="flex min-h-[320px] flex-col rounded-lg border border-outline-subtle bg-surface-dim">
                 <div className="flex items-center justify-between p-3">
@@ -97,7 +112,7 @@ export default function LeadsPage() {
           })}
         </div>
       ) : (
-        <LeadsTable leads={leads} />
+        <LeadsTable leads={filtered} />
       )}
     </Card>
   )

@@ -1,16 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { CrmContext } from './CrmContext'
 import { useToast } from '../hooks/useToast'
 import { useAuth } from '../hooks/useAuth'
 import {
-  AGENTS, APPOINTMENTS, CURRENT_AGENT_ID, PROJECTS, STAGE_NAMES, USERS,
+  AGENTS, APPOINTMENTS, CURRENT_AGENT_ID, LEADS, PROJECTS, STAGE_NAMES, USERS,
 } from '../data/seed'
-import {
-  getLeads as fetchLeads,
-  addLead as createLead,
-  deserializeLead,
-  serializeLead,
-} from '../supabase/services/leads/leads'
 
 const uid = (prefix) => `${prefix}-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`
 
@@ -19,7 +13,7 @@ export default function CrmProvider({ children }) {
   const { session } = useAuth()
 
   const [role, setRole] = useState(session?.role === 'agent' ? 'agent' : 'admin')
-  const [leads, setLeads] = useState([])
+  const [leads, setLeads] = useState(LEADS)
   const [projects, setProjects] = useState(PROJECTS)
   const [appointments, setAppointments] = useState(APPOINTMENTS)
   const [search, setSearch] = useState('')
@@ -41,20 +35,6 @@ export default function CrmProvider({ children }) {
     [isAgent, appointments],
   )
 
-  // Load leads from the public.leads Supabase table on mount
-  useEffect(() => {
-    const loadLeads = async () => {
-      try {
-        const rows = await fetchLeads()
-        setLeads((rows ?? []).map(deserializeLead))
-      } catch (err) {
-        toast(`Failed to load leads from Supabase: ${err.message}`, 'error')
-        setLeads([])
-      }
-    }
-    loadLeads()
-  }, [toast])
-
   const toggleRole = useCallback(() => {
     const next = role === 'admin' ? 'agent' : 'admin'
     setRole(next)
@@ -62,20 +42,30 @@ export default function CrmProvider({ children }) {
   }, [role, toast])
 
   const addLead = useCallback(
-    async (form) => {
+    (form) => {
       const project = projects.find((p) => p.id === form.projectId)
       const agent = AGENTS.find((a) => a.id === form.agentId)
-      const row = serializeLead(form, {
+      const lead = {
+        id: uid('lead'),
+        name: form.name,
+        company: '',
+        phone: form.phone,
+        email: form.email,
+        projectId: form.projectId,
         projectName: project ? project.name : 'General Inquiry',
-        agentName: agent ? agent.name : null,
-      })
-      const created = await createLead(row)
-      const lead = deserializeLead(created)
-      setLeads((all) => [lead, ...all])
+        budget: form.budget || '$1.0M - $2.0M',
+        score: form.score || 'WARM',
+        stage: 'new',
+        source: form.source || 'Direct Web',
+        assignedAgentId: form.agentId || 'agent-1',
+        assignedAgentName: agent ? agent.name : 'Marcus Vance',
+        lastContacted: 'Just now',
+        timeline: [{ type: 'Lead Created', timestamp: 'Just now', agent: user.name, note: 'Lead manually registered into CRM.' }],
+      }
+      setLeads((l) => [lead, ...l])
       toast(`Lead for ${form.name} created and assigned!`, 'success')
-      return lead
     },
-    [projects, toast],
+    [projects, toast, user.name],
   )
 
   const addProject = useCallback(

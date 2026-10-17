@@ -2,7 +2,7 @@ import { useCrm } from '../../hooks/useCrm'
 import AddLeadModal from '../leads/AddLeadModal'
 import AddProjectModal from './AddProjectModal'
 import BookAppointmentModal from './BookAppointmentModal'
-import LeadDetailModal from './LeadDetailModal'
+import LeadDetailModal from '../leads/LeadDetailModal'
 
 const MODALS = {
   addLead: AddLeadModal,
