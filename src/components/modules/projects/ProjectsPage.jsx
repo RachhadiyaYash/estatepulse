@@ -6,6 +6,7 @@ import { Button, CardAction } from '../../ui/Button'
 import { FilterSelect } from '../../ui/Form'
 import { useCrmStore } from '../../../store/crmStore'
 import { useToast } from '../../../store/useToast'
+import { useProperties } from '../../../supabase/services/properties/useProperties'
 
 function Stat({ label, value, valueClass = 'text-on-surface' }) {
   return (
@@ -17,8 +18,9 @@ function Stat({ label, value, valueClass = 'text-on-surface' }) {
 }
 
 export default function ProjectsPage() {
-  const { projects, openModal } = useCrmStore()
+  const { openModal } = useCrmStore()
   const { toast } = useToast()
+  const projects = useProperties()
   const [status, setStatus] = useState('')
   const list = projects.filter((p) => !status || p.status === status)
 

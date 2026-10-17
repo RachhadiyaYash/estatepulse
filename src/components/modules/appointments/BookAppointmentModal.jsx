@@ -4,11 +4,12 @@ import { Button } from "../../ui/Button";
 import { Field, FormRow, Input, Select, Textarea } from "../../ui/Form";
 import { useToast } from "../../../store/useToast";
 import { getLeads, deserializeLead } from "../../../supabase/services/leads/leads";
-import { PROJECTS } from "../../../data/seed";
+import { useProperties } from "../../../supabase/services/properties/useProperties";
 import { todayISO } from "../../../utils/format";
 
 export const BookAppointmentModal = ({ initialLeadId, onClose }) => {
   const { toast } = useToast();
+  const properties = useProperties();
   const [leads, setLeads] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,8 +31,7 @@ export const BookAppointmentModal = ({ initialLeadId, onClose }) => {
   }, []);
 
   const initialLead = initialLeadId ?? leads[0]?.id ?? "";
-  const initialProject =
-    leads.find((l) => l.id === initialLead)?.projectId ?? PROJECTS[0]?.id ?? "";
+  const initialProject = ""; // resolved from the live list once loaded
 
   const [form, setForm] = useState({
     leadId: initialLead,
@@ -47,7 +47,8 @@ export const BookAppointmentModal = ({ initialLeadId, onClose }) => {
   const submit = (e) => {
     e.preventDefault();
     const lead = leads.find((l) => l.id === form.leadId);
-    const project = PROJECTS.find((p) => p.id === form.projectId);
+    const resolvedProjectId = form.projectId || properties[0]?.id || "";
+    const project = properties.find((p) => String(p.id) === String(resolvedProjectId));
     toast(
       `Appointment confirmed for ${lead?.name ?? "client"} at ${project?.name ?? "selected project"} on ${form.date} at ${form.time}.`,
       "success",
@@ -93,7 +94,10 @@ export const BookAppointmentModal = ({ initialLeadId, onClose }) => {
         </Field>
         <Field label="Development / Location">
           <Select required value={form.projectId} onChange={set("projectId")}>
-            {PROJECTS.map((p) => (
+            <option value="" disabled>
+              {properties.length === 0 ? "No developments yet — add one first" : "Select a development"}
+            </option>
+            {properties.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} ({p.location})
               </option>
