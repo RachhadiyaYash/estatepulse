@@ -2,19 +2,21 @@ import { useState } from "react";
 import { Modal, ModalBody } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Field, FormRow, Input, Select } from "../ui/Form";
-import { useCrm } from "../../hooks/useCrm";
 import { useToast } from "../../hooks/useToast";
+import { addLead, serializeLead } from "../../supabase/services/leads/leads";
+import { PROJECTS, AGENTS } from "../../data/seed";
 
-const AddLeadModal = () => {
-  const { projects, agents, addLead, closeModal } = useCrm();
+const AddLeadModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
   const { toast } = useToast();
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
     budget: "",
-    projectId: projects[0]?.id ?? "",
-    agentId: agents[0].id,
+    projectId: PROJECTS[0]?.id ?? "",
+    agentId: AGENTS[0].id,
     score: "WARM",
     source: "Google Ads",
   });
@@ -25,8 +27,14 @@ const AddLeadModal = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await addLead(form);
-      closeModal();
+      const project = PROJECTS.find((p) => p.id === form.projectId);
+      const agent = AGENTS.find((a) => a.id === form.agentId);
+      const row = serializeLead(form, {
+        projectName: project ? project.name : "General Inquiry",
+        agentName: agent ? agent.name : null,
+      });
+      await addLead(row);
+      onClose();
     } catch (err) {
       toast(err.message || "Could not create lead. Please try again.", "error");
     } finally {
@@ -37,11 +45,11 @@ const AddLeadModal = () => {
   return (
     <Modal
       title="Add Inbound Prospective Lead"
-      onClose={closeModal}
+      onClose={onClose}
       onSubmit={submit}
       footer={
         <>
-          <Button variant="secondary" onClick={closeModal}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit" loading={submitting}>
@@ -81,7 +89,7 @@ const AddLeadModal = () => {
         <FormRow>
           <Field label="Target Development / Project">
             <Select required value={form.projectId} onChange={set("projectId")}>
-              {projects.map((p) => (
+              {PROJECTS.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.location})
                 </option>
@@ -118,7 +126,7 @@ const AddLeadModal = () => {
         </FormRow>
         <Field label="Assigned Broker / Agent">
           <Select value={form.agentId} onChange={set("agentId")}>
-            {agents.map((a) => (
+            {AGENTS.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
               </option>

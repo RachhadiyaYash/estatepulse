@@ -34,7 +34,7 @@ export function Textarea({ className = '', ...rest }) {
 export function FilterSelect({ className = '', children, ...rest }) {
   return (
     <select
-      className={`h-[34px] rounded-md border border-outline-subtle bg-field-bg px-3 text-[0.78rem] font-semibold text-on-surface focus:border-accent focus:outline-none ${className}`}
+      className={`h-8.5 rounded-md border border-outline-subtle bg-field-bg px-3 text-[0.78rem] font-semibold text-on-surface focus:border-accent focus:outline-none ${className}`}
       {...rest}
     >
       {children}

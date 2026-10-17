@@ -1,33 +1,35 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Card, CardHeader } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { FilterSelect } from '../components/ui/Form'
-import { SegmentedControl } from '../components/ui/SegmentedControl'
-import { StageDot } from '../components/ui/Badge'
-import LeadCard from '../components/leads/LeadCard'
-import LeadsTable from '../components/leads/LeadsTable'
-import { STAGES } from '../data/seed'
-import { useCrm } from '../hooks/useCrm'
-import { getLeads, deserializeLead } from '../supabase/services/leads/leads'
+import { Card, CardHeader } from '../ui/Card'
+import { Button } from '../ui/Button'
+import { FilterSelect, Input } from '../ui/Form'
+import { SegmentedControl } from '../ui/SegmentedControl'
+import { StageDot } from '../ui/Badge'
+import LeadCard from './LeadCard'
+import LeadsTable from './LeadsTable'
+import AddLeadModal from './AddLeadModal'
+import { STAGES, AGENTS } from '../../data/seed'
+import { getLeads, deserializeLead } from '../../supabase/services/leads/leads'
 
 export default function LeadsPage() {
-  const { agents, search, openModal } = useCrm()
   const [leads, setLeads] = useState([])
   const [view, setView] = useState('kanban')
   const [stage, setStage] = useState('')
   const [score, setScore] = useState('')
   const [agent, setAgent] = useState('')
+  const [search, setSearch] = useState('')
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false)
+
+  const loadLeads = async () => {
+    try {
+      const rows = await getLeads()
+      setLeads((rows ?? []).map(deserializeLead))
+    } catch (err) {
+      console.error('Failed to load leads:', err)
+      setLeads([])
+    }
+  }
 
   useEffect(() => {
-    const loadLeads = async () => {
-      try {
-        const rows = await getLeads()
-        setLeads((rows ?? []).map(deserializeLead))
-      } catch (err) {
-        console.error('Failed to load leads:', err)
-        setLeads([])
-      }
-    }
     loadLeads()
   }, [])
 
@@ -71,7 +73,7 @@ export default function LeadsPage() {
           </FilterSelect>
           <FilterSelect value={agent} onChange={(e) => setAgent(e.target.value)}>
             <option value="">All Agents</option>
-            {agents.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+            {AGENTS.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </FilterSelect>
           <SegmentedControl
             value={activeView}
@@ -81,9 +83,12 @@ export default function LeadsPage() {
               { value: 'table', label: 'Table', icon: 'fa-list' },
             ]}
           />
-          <Button className="h-[34px]" onClick={() => openModal('addLead')}>
-            <i className="fas fa-plus" /> Add Lead
-          </Button>
+          <div className="flex items-center gap-2">
+           
+            <Button className="h-8.5" onClick={() => setIsAddLeadOpen(true)}>
+              <i className="fas fa-plus" /> Add Lead
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -92,7 +97,7 @@ export default function LeadsPage() {
           {STAGES.map((s) => {
             const items = filtered.filter((l) => l.stage === s.key)
             return (
-              <div key={s.key} className="flex min-h-[320px] flex-col rounded-lg border border-outline-subtle bg-surface-dim">
+              <div key={s.key} className="flex min-h-80 flex-col rounded-lg border border-outline-subtle bg-surface-dim">
                 <div className="flex items-center justify-between p-3">
                   <div className="flex items-center gap-2 text-[0.8rem] font-extrabold text-on-surface">
                     <StageDot stage={s.key} /> <span>{s.column}</span>
@@ -113,6 +118,16 @@ export default function LeadsPage() {
         </div>
       ) : (
         <LeadsTable leads={filtered} />
+      )}
+
+      {isAddLeadOpen && (
+        <AddLeadModal
+          isOpen={isAddLeadOpen}
+          onClose={() => {
+            setIsAddLeadOpen(false)
+            loadLeads()
+          }}
+        />
       )}
     </Card>
   )

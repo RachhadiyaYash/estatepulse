@@ -7,7 +7,7 @@ import CrmShell from './components/layout/CrmShell'
 
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
-import LeadsPage from './pages/LeadsPage'
+import LeadsPage from './components/leads/LeadsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import AppointmentsPage from './pages/AppointmentsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
