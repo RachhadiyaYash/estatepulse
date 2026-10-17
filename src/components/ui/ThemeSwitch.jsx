@@ -1,4 +1,4 @@
-import { useTheme } from '../theme/useTheme'
+import { useTheme } from '../context/useTheme'
 
 const OPTIONS = [
   { mode: 'light', icon: 'fa-sun', label: 'Light theme' },
@@ -12,7 +12,7 @@ export default function ThemeSwitch() {
     <div
       role="group"
       aria-label="Theme"
-      className="inline-flex gap-0.5 rounded-lg border border-outline-subtle bg-surface-card p-[3px]"
+      className="inline-flex gap-0.5 rounded-lg border border-outline-subtle bg-surface-card p-0.75"
     >
       {OPTIONS.map((o) => {
         const active = mode === o.mode
@@ -24,7 +24,7 @@ export default function ThemeSwitch() {
             aria-label={o.label}
             aria-pressed={active}
             onClick={() => setMode(o.mode)}
-            className={`inline-flex h-8 w-[34px] items-center justify-center rounded-[10px] text-[0.82rem] transition duration-200 ${
+            className={`inline-flex h-8 w-8.5 items-center justify-center rounded-[10px] text-[0.82rem] transition duration-200 ${
               active ? 'bg-accent/15 text-accent' : 'text-on-surface-muted hover:text-on-surface'
             }`}
           >

@@ -1,8 +1,8 @@
-import { useCrm } from '../../hooks/useCrm'
-import AddLeadModal from './AddLeadModal'
-import AddProjectModal from './AddProjectModal'
-import BookAppointmentModal from './BookAppointmentModal'
-import LeadDetailModal from './LeadDetailModal'
+import { useCrmStore } from '../../store/crmStore'
+import AddLeadModal from '../modules/leads/AddLeadModal'
+import AddProjectModal from '../modules/projects/AddProjectModal'
+import BookAppointmentModal from '../modules/appointments/BookAppointmentModal'
+import LeadDetailModal from '../modules/leads/LeadDetailModal'
 
 const MODALS = {
   addLead: AddLeadModal,
@@ -11,10 +11,45 @@ const MODALS = {
   leadDetail: LeadDetailModal,
 }
 
-/** Renders whichever modal is currently open (see openModal in useCrm) */
+/** Renders whichever modal is currently open (see openModal in crmStore) */
 export default function ModalHost() {
-  const { modal } = useCrm()
+  const { modal, closeModal } = useCrmStore()
   const Active = MODALS[modal.name]
+  if (!Active) return null
+
+  // AddLeadModal uses isOpen/onClose props
+  if (modal.name === 'addLead') {
+    return (
+      <Active
+        isOpen={true}
+        onClose={closeModal}
+        key={`${modal.name}-${modal.payload?.leadId ?? ''}`}
+      />
+    )
+  }
+
+  // LeadDetailModal uses leadId/onClose props
+  if (modal.name === 'leadDetail') {
+    return (
+      <Active
+        leadId={modal.payload?.leadId}
+        onClose={closeModal}
+        key={`leadDetail-${modal.payload?.leadId ?? ''}`}
+      />
+    )
+  }
+
+  // BookAppointmentModal uses initialLeadId/onClose props
+  if (modal.name === 'bookAppointment') {
+    return (
+      <Active
+        initialLeadId={modal.payload?.leadId}
+        onClose={closeModal}
+        key={`bookAppointment-${modal.payload?.leadId ?? ''}`}
+      />
+    )
+  }
+
   // key forces form state to reset every time a modal is (re)opened
-  return Active ? <Active key={`${modal.name}-${modal.payload?.leadId ?? ''}`} /> : null
+  return <Active key={`${modal.name}-${modal.payload?.leadId ?? ''}`} />
 }

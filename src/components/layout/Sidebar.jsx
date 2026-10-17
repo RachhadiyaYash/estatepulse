@@ -1,14 +1,20 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
-import { useCrm } from '../../hooks/useCrm'
-import { useAuth } from '../../hooks/useAuth'
+import { useCrmStore } from '../../store/crmStore'
+import { useUserStore } from '../../store/useUserStore'
+import { useAuth } from '../../store/useAuth'
+import { initials } from '../../utils/format'
 import { NAV } from './navItems'
 
 export default function Sidebar({ open, onClose }) {
-  const { user, isAgent, toggleRole, visibleLeads, visibleAppointments } = useCrm()
+  const { isAgent, visibleLeads, visibleAppointments } = useCrmStore()
   const { logout } = useAuth()
+  const name = useUserStore((s) => s.name)
+  const role = useUserStore((s) => s.role)
   const navigate = useNavigate()
+
+  const roleLabel = role === 'admin' ? 'Administrator' : 'Agent'
 
   const badges = {
     leads: visibleLeads.length,
@@ -88,10 +94,10 @@ export default function Sidebar({ open, onClose }) {
 
         <div className="border-t border-outline-subtle p-4">
           <div className="flex items-center gap-3">
-            <Avatar>EP</Avatar>
-            <div>
-              <div className="text-[0.8rem] font-bold text-on-surface">EstatePulse Suite</div>
-              <div className="text-[0.68rem] text-on-surface-muted">v2.4.0 • Live Online</div>
+            <Avatar className="bg-brand-deep text-white">{initials(name)}</Avatar>
+            <div className="min-w-0">
+              <div className="truncate text-[0.8rem] font-bold text-on-surface">{name}</div>
+              <div className="truncate text-[0.68rem] text-on-surface-muted">{roleLabel}</div>
             </div>
           </div>
           <div className="mt-[0.85rem] flex gap-2">

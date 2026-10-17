@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button, IconButton } from '../ui/Button'
 import ThemeSwitch from '../ui/ThemeSwitch'
-import { useCrm } from '../../hooks/useCrm'
+import { useCrmStore } from '../../store/crmStore'
 import { PAGE_TITLES } from './navItems'
 
 export default function Header({ onMenu }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { search, setSearch, toggleRole, openModal } = useCrm()
+  const { search, setSearch, openModal } = useCrmStore()
 
   const onSearch = (e) => {
     setSearch(e.target.value)
@@ -36,9 +36,7 @@ export default function Header({ onMenu }) {
       </div>
 
       <div className="flex items-center gap-[0.7rem]">
-        <Button variant="secondary" title="Switch User Role" onClick={toggleRole} className="max-2xl:hidden">
-          <i className="fas fa-user-shield" /> <span>Toggle Role</span>
-        </Button>
+      
         <Button variant="secondary" onClick={() => openModal('bookAppointment')} className="max-xl:hidden">
           <i className="fas fa-calendar-plus" /> <span>Book Visit</span>
         </Button>

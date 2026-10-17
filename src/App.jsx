@@ -1,19 +1,19 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import ThemeProvider from './components/theme/ThemeProvider'
-import ToastProvider from './context/ToastProvider'
-import AuthProvider from './context/AuthProvider'
-import ProtectedRoute from './components/ProtectedRoute'
+import ThemeProvider from './components/context/ThemeProvider'
+import ToastProvider from './components/context/ToastProvider'
+import AuthProvider from './components/context/AuthProvider'
+import ProtectedRoute from './components/modules/auth/ProtectedRoute'
+import AdminRoute from './components/modules/auth/AdminRoute'
 import CrmShell from './components/layout/CrmShell'
 
-import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
-import LeadsPage from './pages/LeadsPage'
-import ProjectsPage from './pages/ProjectsPage'
-import AppointmentsPage from './pages/AppointmentsPage'
-import AnalyticsPage from './pages/AnalyticsPage'
-import AgentsPage from './pages/AgentsPage'
-import StyleGuidePage from './pages/StyleGuidePage'
-import NotFoundPage from './pages/NotFoundPage'
+import LoginPage from './components/modules/auth/LoginPage'
+import DashboardPage from './components/modules/dashboard/DashboardPage'
+import LeadsPage from './components/modules/leads/LeadsPage'
+import ProjectsPage from './components/modules/projects/ProjectsPage'
+import AppointmentsPage from './components/modules/appointments/AppointmentsPage'
+import AnalyticsPage from './components/modules/analytics/AnalyticsPage'
+import AgentsPage from './components/modules/agents/AgentsPage'
+import NotFoundPage from './components/ui/NotFoundPage'
 
 export default function App() {
   return (
@@ -31,8 +31,11 @@ export default function App() {
                   <Route path="projects" element={<ProjectsPage />} />
                   <Route path="appointments" element={<AppointmentsPage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
-                  <Route path="agents" element={<AgentsPage />} />
-                  <Route path="design" element={<StyleGuidePage />} />
+                  <Route element={<AdminRoute />}>
+                    <Route path="agents" element={<AgentsPage />} />
+                    {/* future admin-only routes go inside this AdminRoute block */}
+                  </Route>
+                
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Route>
