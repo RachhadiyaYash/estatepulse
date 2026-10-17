@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+/* ==========================================================================
+   Dark mode
+   ThemeProvider puts a `dark` class on <html>. This makes every Tailwind
+   `dark:` class (dark:bg-red-300, dark:text-white ...) follow that class
+   instead of the OS setting.
+   ========================================================================== */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   Theme: maps design tokens -> Tailwind utilities
+   bg-surface-card · text-on-surface-muted · border-outline-subtle · bg-brand ...
+   ========================================================================== */
+@theme inline {
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-surface-base: var(--surface-base);
+  --color-surface-card: var(--surface-card);
+  --color-surface-card-hover: var(--surface-card-hover);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-high: var(--surface-container-high);
+  --color-surface-highest: var(--surface-container-highest);
+  --color-field-bg: var(--field-bg);
+
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-surface-muted: var(--on-surface-muted);
+  --color-on-surface-faint: var(--on-surface-faint);
+
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-text: var(--brand-text);
+  --color-on-brand: var(--on-brand);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-info: var(--info);
+  --color-stage-contacted: var(--stage-contacted);
+
+  --color-outline: var(--outline);
+  --color-outline-subtle: var(--outline-subtle);
+
+  --color-hero-from: var(--hero-from);
+  --color-hero-mid: var(--hero-mid);
+  --color-hero-to: var(--hero-to);
+
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 24px;
+
+  --shadow-sm: var(--shadow-sm-v);
+  --shadow-md: var(--shadow-md-v);
+  --shadow-lg: var(--shadow-lg-v);
+
+  --animate-toast-in: toast-in 0.25s ease-out;
+  --animate-modal-in: modal-in 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade-in: fade-in 0.2s ease-out;
+}
+
+/* ==========================================================================
+   Colors — LIGHT (default)
+   ========================================================================== */
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --surface-base: #f5f7fb;
+  --surface-card: #ffffff;
+  --surface-card-hover: #f8fafd;
+  --surface-dim: #eef2f8;
+  --field-bg: #eef2f8;
+  --surface-container-high: #e2e8f0;
+  --surface-container-highest: #d5dde9;
+
+  /* Text */
+  --on-surface: #172033;
+  --on-surface-variant: #475467;
+  --on-surface-muted: #667085;
+  --on-surface-faint: #98a2b3;
+
+  /* Brand (amber) & accent (cobalt) */
+  --brand: #d9a441;
+  --brand-soft: #fbf3e1;
+  --brand-deep: #263b65;
+  --on-brand: #172033;
+  --brand-text: #8a5f0f;
+  --accent: #4169e1;
+  --accent-hover: #3557c7;
+  --accent-soft: #ebf0ff;
+  --on-accent: #ffffff;
+
+  /* Status */
+  --success: #168765;
+  --warning: #b7791f;
+  --error: #b93838;
+  --info: #4169e1;
+  --stage-contacted: #0e89b8;
+  --success-soft: color-mix(in srgb, var(--success) 14%, var(--surface-card));
+  --warning-soft: color-mix(in srgb, var(--warning) 16%, var(--surface-card));
+  --error-soft: color-mix(in srgb, var(--error) 14%, var(--surface-card));
+
+  /* Lines */
+  --outline: #cfd7e4;
+  --outline-subtle: #e1e7f0;
+
+  /* Hero banner / overlay / shadows */
+  --hero-from: #243b65;
+  --hero-mid: #182a49;
+  --hero-to: #101828;
+  --overlay: rgba(16, 24, 40, 0.5);
+  --shadow-sm-v: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md-v: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --shadow-lg-v: 0 20px 50px rgba(16, 24, 40, 0.18);
+}
+
+/* ==========================================================================
+   Colors — DARK
+   ========================================================================== */
+.dark {
+  color-scheme: dark;
+
+  --surface-base: #0a0a0b;
+  --surface-card: #141415;
+  --surface-card-hover: #1c1c1e;
+  --surface-dim: #0f0f10;
+  --field-bg: #1c1c1e;
+  --surface-container-high: #262628;
+  --surface-container-highest: #2e2e31;
+
+  --on-surface: #f5f5f6;
+  --on-surface-variant: #b0b0b5;
+  --on-surface-muted: #8a8a90;
+  --on-surface-faint: #66666c;
+
+  --brand: #e2b65d;
+  --brand-soft: #26221a;
+  --brand-deep: #303058;
+  --on-brand: #172033;
+  --brand-text: #e2b65d;
+  --accent: #7897ff;
+  --accent-hover: #93acff;
+  --accent-soft: #1a2030;
+  --on-accent: #0a1230;
+
+  --success: #45c99a;
+  --warning: #f0bd62;
+  --error: #ff8585;
+  --info: #8aa5ff;
+  --stage-contacted: #5cc8f0;
+
+  --outline: #3a3a3e;
+  --outline-subtle: #2e2e31;
+
+  --hero-from: #1c1c1e;
+  --hero-mid: #111112;
+  --hero-to: #070708;
+  --overlay: rgba(0, 0, 0, 0.65);
+  --shadow-sm-v: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md-v: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg-v: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   Base (only what Tailwind utilities can't do)
+   ========================================================================== */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface-base font-sans text-[14px] leading-normal text-on-surface antialiased overflow-x-hidden;
+    transition: background-color 0.25s, color 0.25s;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--outline);
+    border-radius: 9999px;
+    border: 2px solid var(--surface-base);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--on-surface-muted);
+  }
+}
+
+/* Small utilities reused across components */
+@utility num {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+}
+
+@utility kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+
+/* Keyframes used by --animate-* above */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
