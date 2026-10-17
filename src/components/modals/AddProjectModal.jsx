@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Modal, ModalBody } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { Field, FormRow, Input, Select, Textarea } from '../ui/Form'
-import { useCrm } from '../../hooks/useCrm'
+import { useCrmStore } from '../../store/crmStore'
 
 export default function AddProjectModal() {
-  const { addProject, closeModal } = useCrm()
+  const { addProject, closeModal } = useCrmStore()
   const [form, setForm] = useState({
     name: '', location: '', type: 'Luxury Apartments', price: '', units: '', completion: '', description: '',
   })

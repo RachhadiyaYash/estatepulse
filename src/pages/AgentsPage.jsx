@@ -2,13 +2,13 @@ import { Navigate } from 'react-router-dom'
 import { Card, CardHeader } from '../components/ui/Card'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
-import { useCrm } from '../hooks/useCrm'
+import { useCrmStore } from '../store/crmStore'
 
 const HEADS = ['Agent Name', 'Active Leads', 'Closed Deals', 'Sales Volume', 'Quarterly Quota', 'Attainment']
 const TD = 'border-b border-outline-subtle px-5 py-[0.95rem]'
 
 export default function AgentsPage() {
-  const { agents, isAgent } = useCrm()
+  const { agents, isAgent } = useCrmStore()
   // the roster is an admin-only screen (nav link is hidden for agents too)
   if (isAgent) return <Navigate to="/" replace />
 

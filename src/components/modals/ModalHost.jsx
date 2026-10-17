@@ -1,7 +1,7 @@
-import { useCrm } from '../../hooks/useCrm'
+import { useCrmStore } from '../../store/crmStore'
 import AddLeadModal from '../leads/AddLeadModal'
 import AddProjectModal from './AddProjectModal'
-import BookAppointmentModal from './BookAppointmentModal'
+import BookAppointmentModal from '../appointments/BookAppointmentModal'
 import LeadDetailModal from '../leads/LeadDetailModal'
 
 const MODALS = {
@@ -11,13 +11,13 @@ const MODALS = {
   leadDetail: LeadDetailModal,
 }
 
-/** Renders whichever modal is currently open (see openModal in useCrm) */
+/** Renders whichever modal is currently open (see openModal in crmStore) */
 export default function ModalHost() {
-  const { modal, closeModal } = useCrm()
+  const { modal, closeModal } = useCrmStore()
   const Active = MODALS[modal.name]
   if (!Active) return null
 
-  // AddLeadModal now uses isOpen/onClose props instead of useCrm
+  // AddLeadModal uses isOpen/onClose props
   if (modal.name === 'addLead') {
     return (
       <Active
@@ -28,13 +28,24 @@ export default function ModalHost() {
     )
   }
 
-  // LeadDetailModal uses leadId/onClose props instead of useCrm
+  // LeadDetailModal uses leadId/onClose props
   if (modal.name === 'leadDetail') {
     return (
       <Active
         leadId={modal.payload?.leadId}
         onClose={closeModal}
         key={`leadDetail-${modal.payload?.leadId ?? ''}`}
+      />
+    )
+  }
+
+  // BookAppointmentModal uses initialLeadId/onClose props
+  if (modal.name === 'bookAppointment') {
+    return (
+      <Active
+        initialLeadId={modal.payload?.leadId}
+        onClose={closeModal}
+        key={`bookAppointment-${modal.payload?.leadId ?? ''}`}
       />
     )
   }

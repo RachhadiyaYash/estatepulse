@@ -3,7 +3,7 @@ import { Card, CardHeader } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Button, CardAction } from '../components/ui/Button'
 import { FilterSelect } from '../components/ui/Form'
-import { useCrm } from '../hooks/useCrm'
+import { useCrmStore } from '../store/crmStore'
 import { useToast } from '../hooks/useToast'
 
 function Stat({ label, value, valueClass = 'text-on-surface' }) {
@@ -16,7 +16,7 @@ function Stat({ label, value, valueClass = 'text-on-surface' }) {
 }
 
 export default function ProjectsPage() {
-  const { projects, openModal } = useCrm()
+  const { projects, openModal } = useCrmStore()
   const { toast } = useToast()
   const [status, setStatus] = useState('')
   const list = projects.filter((p) => !status || p.status === status)

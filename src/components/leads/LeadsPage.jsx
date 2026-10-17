@@ -12,7 +12,7 @@ import { getLeads, deserializeLead } from '../../supabase/services/leads/leads'
 
 const LeadsPage = () => {
   const [leads, setLeads] = useState([])
-  const [view, setView] = useState('kanban')
+  const [view, setView] = useState('table')
   const [stage, setStage] = useState('')
   const [score, setScore] = useState('')
   const [agent, setAgent] = useState('')

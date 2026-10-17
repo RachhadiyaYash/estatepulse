@@ -5,10 +5,10 @@ import { Button } from '../components/ui/Button'
 import KpiCard from '../components/ui/KpiCard'
 import AppointmentItem from '../components/appointments/AppointmentItem'
 import LeadQuickActions from '../components/leads/LeadQuickActions'
-import { useCrm } from '../hooks/useCrm'
+import { useCrmStore } from '../store/crmStore'
 
 export default function DashboardPage() {
-  const { isAgent, visibleLeads, visibleAppointments, openModal } = useCrm()
+  const { isAgent, visibleLeads, visibleAppointments, openModal } = useCrmStore()
 
   const hot = visibleLeads.filter((l) => l.score === 'HOT').length
   const upcoming = visibleAppointments.filter((a) => a.status === 'Scheduled').length

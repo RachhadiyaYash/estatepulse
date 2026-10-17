@@ -1,12 +1,12 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
-import { useCrm } from '../../hooks/useCrm'
+import { useCrmStore } from '../../store/crmStore'
 import { useAuth } from '../../hooks/useAuth'
 import { NAV } from './navItems'
 
 export default function Sidebar({ open, onClose }) {
-  const { user, isAgent, toggleRole, visibleLeads, visibleAppointments } = useCrm()
+  const { isAgent, visibleLeads, visibleAppointments } = useCrmStore()
   const { logout } = useAuth()
   const navigate = useNavigate()
 

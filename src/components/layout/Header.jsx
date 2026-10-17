@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button, IconButton } from '../ui/Button'
 import ThemeSwitch from '../ui/ThemeSwitch'
-import { useCrm } from '../../hooks/useCrm'
+import { useCrmStore } from '../../store/crmStore'
 import { PAGE_TITLES } from './navItems'
 
 export default function Header({ onMenu }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { search, setSearch, toggleRole, openModal } = useCrm()
+  const { search, setSearch, toggleRole, openModal } = useCrmStore()
 
   const onSearch = (e) => {
     setSearch(e.target.value)

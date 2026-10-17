@@ -2,6 +2,7 @@ import { Avatar } from "../ui/Avatar";
 import { Badge, ScoreBadge, StageBadge } from "../ui/Badge";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
+import BookAppointmentModal from "../appointments/BookAppointmentModal";
 import { initials } from "../../utils/format";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ const TD = "border-b border-outline-subtle px-5 py-[0.95rem]";
 
 const LeadsTable = ({ leads }) => {
   const [detailLeadId, setDetailLeadId] = useState(null);
+  const [bookLeadId, setBookLeadId] = useState(null);
   return (
     <>
       <div className="overflow-x-auto">
@@ -86,7 +88,7 @@ const LeadsTable = ({ leads }) => {
                   {lead.source}
                 </td>
                 <td className={TD}>
-                  <LeadQuickActions lead={lead} />
+                  <LeadQuickActions lead={lead} onBookVisit={(leadId) => setBookLeadId(leadId)} />
                 </td>
               </tr>
             ))}
@@ -98,6 +100,13 @@ const LeadsTable = ({ leads }) => {
         <LeadDetailModal
           leadId={detailLeadId}
           onClose={() => setDetailLeadId(null)}
+        />
+      )}
+
+      {bookLeadId && (
+        <BookAppointmentModal
+          initialLeadId={bookLeadId}
+          onClose={() => setBookLeadId(null)}
         />
       )}
     </>

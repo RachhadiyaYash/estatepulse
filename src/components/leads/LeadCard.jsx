@@ -2,11 +2,13 @@ import { Avatar } from "../ui/Avatar";
 import { ScoreBadge } from "../ui/Badge";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
+import BookAppointmentModal from "../appointments/BookAppointmentModal";
 import { initials } from "../../utils/format";
 import { useState } from "react";
 
 const LeadCard = ({ lead }) => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isBookOpen, setIsBookOpen] = useState(false);
   return (
     <>
       <div
@@ -36,7 +38,7 @@ const LeadCard = ({ lead }) => {
             </Avatar>
             <span>{lead.source}</span>
           </div>
-          <LeadQuickActions lead={lead} />
+          <LeadQuickActions lead={lead} onBookVisit={(leadId) => setIsBookOpen(true)} />
         </div>
       </div>
 
@@ -44,6 +46,13 @@ const LeadCard = ({ lead }) => {
         <LeadDetailModal
           leadId={lead.id}
           onClose={() => setIsDetailOpen(false)}
+        />
+      )}
+
+      {isBookOpen && (
+        <BookAppointmentModal
+          initialLeadId={lead.id}
+          onClose={() => setIsBookOpen(false)}
         />
       )}
     </>

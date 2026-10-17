@@ -1,10 +1,7 @@
 import { CardAction } from '../ui/Button'
-import { useCrm } from '../../hooks/useCrm'
 import { useToast } from '../../hooks/useToast'
 
-
-const LeadQuickActions = ({ lead, schedule = true }) => {
-  const { openModal } = useCrm()
+const LeadQuickActions = ({ lead, schedule = true, onBookVisit }) => {
   const { toast } = useToast()
   const stop = (fn) => (e) => {
     e.stopPropagation()
@@ -25,7 +22,7 @@ const LeadQuickActions = ({ lead, schedule = true }) => {
         <i className="fab fa-whatsapp" />
       </CardAction>
       {schedule && (
-        <CardAction title="Book Visit" onClick={stop(() => openModal('bookAppointment', { leadId: lead.id }))}>
+        <CardAction title="Book Visit" onClick={stop(() => onBookVisit?.(lead.id))}>
           <i className="fas fa-calendar-plus" />
         </CardAction>
       )}
