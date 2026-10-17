@@ -60,11 +60,7 @@ export function setSearch(search) {
   setState({ search })
 }
 
-export function toggleRole() {
-  const next = state.role === 'admin' ? 'agent' : 'admin'
-  setState({ role: next })
-  notify(`Switched view to ${next.toUpperCase()} mode.`, 'primary')
-}
+
 
 export function openModal(name, payload = null) {
   setState({ modal: { name, payload } })
@@ -126,7 +122,7 @@ export function useCrmStore() {
       : s.appointments
 
     return {
-      role: s.role, isAgent, user, toggleRole,
+      role: s.role, isAgent, user,
       leads: s.leads, visibleLeads,
       projects: s.projects,
       appointments: s.appointments, visibleAppointments,
