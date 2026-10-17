@@ -2,8 +2,8 @@ import { CardAction } from '../ui/Button'
 import { useCrm } from '../../hooks/useCrm'
 import { useToast } from '../../hooks/useToast'
 
-/** Call / WhatsApp / (optional) Book-visit icon buttons. Clicks never open the lead row. */
-export default function LeadQuickActions({ lead, schedule = true }) {
+
+const LeadQuickActions = ({ lead, schedule = true }) => {
   const { openModal } = useCrm()
   const { toast } = useToast()
   const stop = (fn) => (e) => {
@@ -32,3 +32,4 @@ export default function LeadQuickActions({ lead, schedule = true }) {
     </div>
   )
 }
+export default LeadQuickActions

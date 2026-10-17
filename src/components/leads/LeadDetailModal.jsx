@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal, ModalBody } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { ScoreBadge } from '../ui/Badge'
 import { Field, FormRow, Select, Textarea, FilterSelect } from '../ui/Form'
 import { STAGES } from '../../data/seed'
-import { useCrm } from '../../hooks/useCrm'
 import { useToast } from '../../hooks/useToast'
+import { getLeadById, deserializeLead, updateLead } from '../../supabase/services/leads/leads'
 
 const ACTIVITY_TYPES = [
   'Phone Call', 'WhatsApp Conversation', 'In-Person Meeting', 'Site Walkthrough', 'Offer / Price Negotiation',
@@ -20,21 +20,43 @@ function Stat({ caption, children }) {
   )
 }
 
-const LeadDetailModal = () => {
-  const { leads, modal, closeModal, openModal, updateLeadStage, addFollowup } = useCrm()
+const LeadDetailModal = ({ leadId, onClose }) => {
   const { toast } = useToast()
-  const lead = leads.find((l) => l.id === modal.payload?.leadId)
+  const [lead, setLead] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [followup, setFollowup] = useState({ type: ACTIVITY_TYPES[0], stage: '', note: '' })
 
+  useEffect(() => {
+    const loadLead = async () => {
+      try {
+        const row = await getLeadById(leadId)
+        setLead(deserializeLead(row))
+      } catch (err) {
+        toast(`Failed to load lead: ${err.message}`, 'error')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadLead()
+  }, [leadId, toast])
+
+  if (loading) return null
   if (!lead) return null
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     if (!followup.note.trim()) {
       toast('Please enter follow-up activity notes.', 'warning')
       return
     }
-    addFollowup(lead.id, followup)
+    if (followup.stage && followup.stage !== lead.stage) {
+      try {
+        await updateLead(String(lead.id), { stage: followup.stage })
+      } catch (err) {
+        toast(`Failed to update stage: ${err.message}`, 'error')
+      }
+    }
+    toast('Activity recorded!', 'success')
     setFollowup((f) => ({ ...f, stage: '', note: '' }))
   }
 
@@ -43,8 +65,8 @@ const LeadDetailModal = () => {
       size="lg"
       title={lead.name}
       subtitle={lead.company || 'Individual Buyer'}
-      onClose={closeModal}
-      footer={<Button variant="secondary" onClick={closeModal}>Close</Button>}
+      onClose={onClose}
+      footer={<Button variant="secondary" onClick={onClose}>Close</Button>}
     >
       <ModalBody>
         <div className="mb-6 grid grid-cols-2 gap-3 rounded-md border border-outline-subtle bg-surface-dim p-4 lg:grid-cols-4">
@@ -74,15 +96,13 @@ const LeadDetailModal = () => {
             <Button size="sm" variant="secondary" className="text-success" onClick={() => toast(`Opening WhatsApp chat thread for ${lead.name}...`, 'success')}>
               <i className="fab fa-whatsapp" /> WhatsApp
             </Button>
-            <Button size="sm" onClick={() => openModal('bookAppointment', { leadId: lead.id })}>
-              <i className="fas fa-calendar-plus" /> Schedule Tour
-            </Button>
+
           </div>
         </div>
 
         <div className="mb-6 flex items-center justify-between rounded-md bg-surface-dim px-4 py-3">
           <span className="text-[0.82rem] font-semibold">Current Pipeline Stage:</span>
-          <FilterSelect className="w-55" value={lead.stage} onChange={(e) => updateLeadStage(lead.id, e.target.value)}>
+          <FilterSelect className="w-55" value={lead.stage} onChange={(e) => setFollowup((f) => ({ ...f, stage: e.target.value }))}>
             {STAGES.map((s) => (
               <option key={s.key} value={s.key}>{s.step}</option>
             ))}

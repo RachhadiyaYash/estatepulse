@@ -10,7 +10,7 @@ import AddLeadModal from './AddLeadModal'
 import { STAGES, AGENTS } from '../../data/seed'
 import { getLeads, deserializeLead } from '../../supabase/services/leads/leads'
 
-export default function LeadsPage() {
+const LeadsPage = () => {
   const [leads, setLeads] = useState([])
   const [view, setView] = useState('kanban')
   const [stage, setStage] = useState('')
@@ -132,3 +132,5 @@ export default function LeadsPage() {
     </Card>
   )
 }
+
+export default LeadsPage

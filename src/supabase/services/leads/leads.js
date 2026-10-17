@@ -22,6 +22,17 @@ export async function addLead(lead) {
   return data;
 }
 
+export async function getLeadById(id) {
+  const { data, error } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function updateLead(id, updates) {
   const { data, error } = await supabase
     .from("leads")
