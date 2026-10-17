@@ -37,11 +37,11 @@ export default function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="fixed right-6 bottom-6 z-[2000] flex flex-col gap-2" aria-live="polite">
+      <div className="fixed right-6 bottom-6 z-2000 flex flex-col gap-2" aria-live="polite">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="flex min-w-[280px] animate-toast-in items-center gap-3 rounded-md border border-outline-subtle bg-surface-card px-5 py-3.5 text-[0.82rem] font-semibold text-on-surface shadow-lg"
+            className="flex min-w-70 animate-toast-in items-center gap-3 rounded-md border border-outline-subtle bg-surface-card px-5 py-3.5 text-[0.82rem] font-semibold text-on-surface shadow-lg"
           >
             <i className={`fas ${ICONS[t.type] || ICONS.info} text-[1.1rem] ${ICON_COLOR[t.type] || ICON_COLOR.info}`} />
             <span className="flex-1">{t.message}</span>

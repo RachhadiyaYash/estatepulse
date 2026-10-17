@@ -219,13 +219,7 @@ export default function LoginPage() {
                 <div className="my-5 flex items-center gap-3 text-[0.72rem] text-on-surface-muted before:h-px before:flex-1 before:bg-outline-subtle after:h-px after:flex-1 after:bg-outline-subtle">
                   or continue with
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {[['Google', 'fa-google'], ['Microsoft', 'fa-microsoft']].map(([n, icon]) => (
-                    <Button key={n} variant="secondary" onClick={() => toast(`${n} single sign-on is not configured in this demo.`, 'warning')}>
-                      <i className={`fab ${icon}`} /> {n}
-                    </Button>
-                  ))}
-                </div>
+               
 
                 <div className="mt-5 rounded-md border border-dashed border-outline bg-surface-dim p-3 text-[0.74rem] leading-relaxed text-on-surface-variant">
                   <b className="text-on-surface">Demo access.</b> Admin <code className="num">alex.mercer@estatepulse.com</code> · Agent <code className="num">agent@estatepulse.com</code> · password <code className="num">estate123</code>
