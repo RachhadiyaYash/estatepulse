@@ -1,13 +1,16 @@
-import { Card } from '../../ui/Card'
-import { FUNNEL, LEAD_SOURCES } from '../../../data/seed'
+import { Card } from "../../ui/Card";
+import { FUNNEL, LEAD_SOURCES } from "../../constants/pipeline";
 
 // full class names so Tailwind can see them
 const FUNNEL_STYLE = {
-  accent: { border: 'border-l-accent', text: 'text-accent' },
-  'stage-contacted': { border: 'border-l-stage-contacted', text: 'text-stage-contacted' },
-  warning: { border: 'border-l-warning', text: 'text-warning' },
-  success: { border: 'border-l-success', text: 'text-success' },
-}
+  accent: { border: "border-l-accent", text: "text-accent" },
+  "stage-contacted": {
+    border: "border-l-stage-contacted",
+    text: "text-stage-contacted",
+  },
+  warning: { border: "border-l-warning", text: "text-warning" },
+  success: { border: "border-l-success", text: "text-success" },
+};
 
 function Panel({ title, children }) {
   return (
@@ -15,13 +18,15 @@ function Panel({ title, children }) {
       <h3 className="mb-4 text-[0.95rem] font-bold text-on-surface">{title}</h3>
       {children}
     </div>
-  )
+  );
 }
 
 export default function AnalyticsPage() {
   return (
     <Card className="p-6">
-      <h2 className="mb-1 font-extrabold tracking-[-0.03em] text-on-surface">Sales Intelligence & Pipeline Analytics</h2>
+      <h2 className="mb-1 font-extrabold tracking-[-0.03em] text-on-surface">
+        Sales Intelligence & Pipeline Analytics
+      </h2>
       <p className="mb-6 text-[0.8rem] text-on-surface-muted">
         Real-time conversion velocity, source attribution, and revenue forecast.
       </p>
@@ -35,7 +40,10 @@ export default function AnalyticsPage() {
                 <strong className="text-on-surface">{s.value}</strong>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-high">
-                <div className={`h-full rounded-full ${s.bar}`} style={{ width: `${s.pct}%` }} />
+                <div
+                  className={`h-full rounded-full ${s.bar}`}
+                  style={{ width: `${s.pct}%` }}
+                />
               </div>
             </div>
           ))}
@@ -49,12 +57,14 @@ export default function AnalyticsPage() {
                 className={`flex items-center justify-between rounded-md border border-l-4 border-outline-subtle bg-surface-card px-4 py-3 text-[0.82rem] ${FUNNEL_STYLE[f.color].border}`}
               >
                 <span className="text-on-surface-variant">{f.label}</span>
-                <strong className={`num ${FUNNEL_STYLE[f.color].text}`}>{f.value}</strong>
+                <strong className={`num ${FUNNEL_STYLE[f.color].text}`}>
+                  {f.value}
+                </strong>
               </div>
             ))}
           </div>
         </Panel>
       </div>
     </Card>
-  )
+  );
 }

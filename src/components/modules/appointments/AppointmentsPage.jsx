@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Card, CardHeader } from "../../ui/Card";
 import { Button, CardAction } from "../../ui/Button";
+import { useVisits } from "../../../supabase/services/visit/useVisits";
 import AppointmentItem from "./AppointmentItem";
-import { useCrmStore } from "../../../store/crmStore";
+import { useUiStore } from "../../store/useUiStore";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const pad = (n) => String(n).padStart(2, "0");
@@ -110,7 +111,21 @@ function MiniCalendar({ appointments, selected, onSelect }) {
         </div>
         <div className="mb-1 flex justify-between text-[0.8rem]">
           <span>Visits This Week:</span>
-          <strong className="text-accent">8 Tours</strong>
+          <strong className="text-accent">
+            {/* {
+              visits.filter((v) => {
+                const d = new Date(v.visitDate ?? v.date);
+                const now = new Date();
+                const weekAgo = new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() - 7,
+                );
+                return d >= weekAgo && d <= now;
+              }).length
+            } */}
+            2 Tours
+          </strong>
         </div>
         <div className="flex justify-between text-[0.8rem]">
           <span>Show-up Rate:</span>
@@ -122,11 +137,10 @@ function MiniCalendar({ appointments, selected, onSelect }) {
 }
 
 const AppointmentsPage = () => {
-  const { visibleAppointments, openModal } = useCrmStore();
+  const visits = useVisits();
+  const { openModal } = useUiStore();
   const [selected, setSelected] = useState(null);
-  const list = selected
-    ? visibleAppointments.filter((a) => a.date === selected)
-    : visibleAppointments;
+  const list = selected ? visits.filter((a) => a.date === selected) : visits;
 
   return (
     <Card>
@@ -141,7 +155,7 @@ const AppointmentsPage = () => {
 
       <div className="grid gap-6 p-6 lg:grid-cols-[320px_1fr]">
         <MiniCalendar
-          appointments={visibleAppointments}
+          appointments={visits}
           selected={selected}
           onSelect={setSelected}
         />

@@ -1,10 +1,23 @@
 import { Badge } from "../../ui/Badge";
 import { Button, CardAction } from "../../ui/Button";
-import { useCrmStore } from "../../../store/crmStore";
+import { useToast } from "../../store/useToast";
+import { completeVisit } from "../../../supabase/services/visit/visits";
+import { refreshVisits } from "../../../supabase/services/visit/useVisits";
 
 const AppointmentItem = ({ apt, compact = false }) => {
-  const { completeAppointment } = useCrmStore();
+  const { toast } = useToast();
   const done = apt.status === "Completed";
+
+  const onComplete = async () => {
+    try {
+      await completeVisit(apt.id);
+    } catch (err) {
+      toast(err?.message || "Could not complete the visit.", "error");
+      return;
+    }
+    await refreshVisits().catch(() => {});
+    toast("Visit marked as completed.", "success");
+  };
 
   return (
     <div
@@ -47,7 +60,7 @@ const AppointmentItem = ({ apt, compact = false }) => {
           <span>
             <i className="fas fa-building" />{" "}
             {compact ? "" : <strong>Property: </strong>}
-            {apt.projectName}
+            {apt.siteName}
           </span>
           <span>
             <i className="fas fa-user-tie" />{" "}
@@ -74,16 +87,12 @@ const AppointmentItem = ({ apt, compact = false }) => {
             <CardAction
               className="px-2"
               title="Mark Completed"
-              onClick={() => completeAppointment(apt.id)}
+              onClick={onComplete}
             >
               <i className="fas fa-check" /> Done
             </CardAction>
           ) : (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => completeAppointment(apt.id)}
-            >
+            <Button size="sm" variant="secondary" onClick={onComplete}>
               <i className="fas fa-check" /> Mark Complete
             </Button>
           )

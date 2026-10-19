@@ -1,5 +1,7 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { ToastContext } from './ToastContext'
+import { createContext, useCallback, useMemo, useRef, useState } from 'react'
+
+// eslint-disable-next-line react-refresh/only-export-components -- shared with the useToast() hook in store/useToast.js
+export const ToastContext = createContext(null)
 
 const ICONS = {
   info: 'fa-circle-info',

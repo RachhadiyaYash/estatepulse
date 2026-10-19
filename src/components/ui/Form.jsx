@@ -1,3 +1,5 @@
+import { SearchableSelect } from './SearchableSelect'
+
 const CONTROL =
   'w-full rounded-md border border-outline-subtle bg-field-bg px-3.5 text-[0.84rem] text-on-surface transition duration-200 placeholder:text-on-surface-muted focus:border-accent focus:ring-3 focus:ring-accent/20 focus:outline-none'
 
@@ -19,25 +21,16 @@ export function Input({ className = '', ...rest }) {
 }
 
 export function Select({ className = '', children, ...rest }) {
-  return (
-    <select className={`h-11 ${CONTROL} ${className}`} {...rest}>
-      {children}
-    </select>
-  )
+  return <SearchableSelect size="default" className={`w-full ${className}`} children={children} {...rest} />
 }
 
 export function Textarea({ className = '', ...rest }) {
   return <textarea className={`py-3 leading-normal ${CONTROL} resize-y ${className}`} {...rest} />
 }
 
-/** Compact select for toolbars/filters */
+/** Compact searchable select for toolbars/filters */
 export function FilterSelect({ className = '', children, ...rest }) {
   return (
-    <select
-      className={`h-8.5 rounded-md border border-outline-subtle bg-field-bg px-3 text-[0.78rem] font-semibold text-on-surface focus:border-accent focus:outline-none ${className}`}
-      {...rest}
-    >
-      {children}
-    </select>
+    <SearchableSelect size="compact" className={className} children={children} {...rest} />
   )
 }

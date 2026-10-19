@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import ThemeProvider from './components/context/ThemeProvider'
+import ThemeProvider from './components/context/ThemeContext'
 import ToastProvider from './components/context/ToastProvider'
 import AuthProvider from './components/context/AuthProvider'
 import ProtectedRoute from './components/modules/auth/ProtectedRoute'
