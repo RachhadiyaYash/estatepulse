@@ -7,6 +7,7 @@ import { getLeads } from "../../../supabase/services/leads/leads";
 import { useProperties } from "../../../supabase/services/properties/useProperties";
 import { getProfiles } from "../../../supabase/services/profiles/profiles";
 import { createVisit } from "../../../supabase/services/visit/visits";
+import { refreshVisits } from "../../../supabase/services/visit/useVisits";
 import { todayISO } from "../../utils/format.js";
 
 /** ------------------------------------------------------------------ */
@@ -188,6 +189,7 @@ export const BookAppointmentModal = ({ initialLeadId, onClose }) => {
         agent: agent?.name ?? "",
       };
       await createVisit(payload);
+      await refreshVisits();
       toast("Site visit scheduled successfully!", "success");
       onClose();
     } catch (err) {
