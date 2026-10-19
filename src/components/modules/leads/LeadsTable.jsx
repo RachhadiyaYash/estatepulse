@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { Avatar } from "../../ui/Avatar";
 import { Badge, ScoreBadge, StageBadge } from "../../ui/Badge";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
 import BookAppointmentModal from "../appointments/BookAppointmentModal";
 import { initials } from "../../utils/format.js";
-import { useState } from "react";
 
 const HEADS = [
   "Lead Contact",

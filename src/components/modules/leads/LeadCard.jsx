@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { Avatar } from "../../ui/Avatar";
 import { ScoreBadge } from "../../ui/Badge";
+import { initials } from "../../utils/format.js";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
 import BookAppointmentModal from "../appointments/BookAppointmentModal";
-import { initials } from "../../utils/format.js";
-import { useState } from "react";
 
 const LeadCard = ({ lead }) => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
