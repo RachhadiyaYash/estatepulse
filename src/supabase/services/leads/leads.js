@@ -1,10 +1,11 @@
 import { supabase } from "../../supabase.js";
+import { formatLakhRange } from "../../../components/utils/format.js";
 
 /* ------------------------------------------------------------------ */
 /*  Queries                                                            */
 /* ------------------------------------------------------------------ */
 
-/** Fetch all leads (newest first). */
+/** Fetch all leads (newest first). Kept for backward compatibility. */
 export async function getLeads() {
   const { data, error } = await supabase
     .from("leads")
@@ -14,6 +15,72 @@ export async function getLeads() {
   if (error) throw error;
   return data ?? [];
 }
+
+/**
+ * Fetch leads with server-side filtering (no pagination — full result set).
+ *
+ * @param {Object} params
+ * @param {string} [params.search] - free-text searched against name, phone, email, project
+ * @param {string} [params.stage] - pipeline stage key (new | contacted | site_visit | ...)
+ * @param {string} [params.score] - intent score (HOT | WARM | COLD)
+ * @param {string} [params.agentId] - assigned agent id (or display name)
+ * @param {string} [params.agentName] - assigned agent display name (preferred)
+ * @param {AbortSignal} [params.signal] - optional abort signal for cancellation
+ * @returns {Promise<{ data: any[], count: number }>}
+ */
+export async function getLeadsFiltered({
+  search,
+  stage,
+  score,
+  agentId,
+  agentName,
+  signal,
+} = {}) {
+  let query = supabase
+    .from("leads")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false });
+
+  // Allow query cancellation (e.g. fast filter typing)
+  if (signal) query = query.abortSignal(signal);
+
+  // Server-side filters — `ilike` without wildcards behaves as a
+  // case-insensitive equality check, so "marcus vance" still matches
+  // "Marcus Vance" and "new" still matches "New Lead" if the DB ever
+  // stores labels instead of keys.
+  if (stage) query = query.ilike("stage", String(stage).trim());
+  if (score)
+    query = query.ilike("intent_source", String(score).trim().toUpperCase());
+  // `agent` column stores the display name (see serializeLead) — accept id or name
+  const agentFilter = agentName ?? agentId;
+  if (agentFilter) query = query.ilike("agent", String(agentFilter).trim());
+
+  // Server-side search across the client-facing columns.
+  // Escape PostgREST `or` special chars (comma, parens, %) to avoid 400s.
+  if (search && String(search).trim()) {
+    const q = String(search)
+      .trim()
+      .slice(0, 100)
+      .replace(/[%(),]/g, "")
+      .replace(/\s+/g, " ");
+    if (q) {
+      query = query.or(
+        `client_name.ilike.%${q}%,client_mobile.ilike.%${q}%,client_email.ilike.%${q}%,target_project.ilike.%${q}%`,
+      );
+    }
+  }
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+
+  return {
+    data: data ?? [],
+    count: count ?? (data ?? []).length,
+  };
+}
+
+/** @deprecated Use getLeadsFiltered instead (pagination removed). */
+export const getLeadsPaginated = getLeadsFiltered;
 
 /** Fetch one lead by id. */
 export async function getLeadById(id) {
@@ -67,7 +134,7 @@ export async function updateLeadStage(leadId, newStage) {
   if (error) {
     if (isStageSchemaCacheError(error)) {
       throw new Error(
-        "leads.stage not visible to the API yet (stale schema cache). Reload the schema cache in Supabase (Settings > API) and retry."
+        "leads.stage not visible to the API yet (stale schema cache). Reload the schema cache in Supabase (Settings > API) and retry.",
       );
     }
     throw error;
@@ -114,19 +181,9 @@ export async function deleteLead(id) {
 /*  so LeadsPage / LeadsTable / LeadCard / Dashboard keep working.     */
 /* ------------------------------------------------------------------ */
 
+/** Portal-wide display: budget range in lakhs (e.g. "₹120 L - ₹400 L"). */
 function formatBudget(min, max) {
-  const fmt = (n) => {
-    if (n == null || n === "") return null;
-    const num = Number(n);
-    if (Number.isNaN(num)) return null;
-    if (num >= 1_00_00_000) return `₹${(num / 1_00_00_000).toFixed(num % 1_00_00_000 === 0 ? 0 : 1)}Cr`;
-    if (num >= 1_00_000) return `₹${(num / 1_00_000).toFixed(num % 1_00_000 === 0 ? 0 : 1)}L`;
-    return `₹${num.toLocaleString("en-IN")}`;
-  };
-  const lo = fmt(min);
-  const hi = fmt(max);
-  if (lo && hi) return `${lo} - ${hi}`;
-  return lo ?? hi ?? "—";
+  return formatLakhRange(min, max);
 }
 
 function parseBudgetInput(value) {
@@ -139,7 +196,12 @@ function parseBudgetInput(value) {
   if (cr) return Number(cr[1]) * 1_00_00_000;
   const range = cleaned.match(/^([\d.]+)[-–]([\d.]+)(L|Cr)?$/i);
   if (range) {
-    const mult = range[3]?.toLowerCase() === "cr" ? 1_00_00_000 : range[3]?.toLowerCase() === "l" ? 1_00_000 : 1;
+    const mult =
+      range[3]?.toLowerCase() === "cr"
+        ? 1_00_00_000
+        : range[3]?.toLowerCase() === "l"
+          ? 1_00_000
+          : 1;
     return Number(range[1]) * mult;
   }
   const num = Number(cleaned);
@@ -179,19 +241,20 @@ export function deserializeLead(row) {
 
 /**
  * UI form -> DB insert payload.
- * `form` holds the AddLeadModal fields (name, phone, email, budget,
- * projectId, agentId, score, source); `meta` carries resolved
+ * `form` holds the AddLeadModal fields (name, phone, email, budgetMin,
+ * budgetMax, projectId, agentId, score, source); `meta` carries resolved
  * project/agent display names.
  */
 export function serializeLead(form, meta = {}) {
-  const budgetValue = parseBudgetInput(form.budget);
+  const budgetMin = parseBudgetInput(form.budgetMin);
+  const budgetMax = parseBudgetInput(form.budgetMax);
   return {
     client_name: form.name?.trim() ?? "",
     client_mobile: form.phone?.trim() || null,
     client_email: form.email?.trim() || null,
     target_project: meta.projectName || form.projectId || null,
-    budget_min: budgetValue,
-    budget_max: budgetValue,
+    budget_min: budgetMin,
+    budget_max: budgetMax ?? budgetMin,
     intent_source: form.score || "WARM",
     lead_source: form.source || null,
     agent: meta.agentName || form.agentId || null,

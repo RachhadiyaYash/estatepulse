@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ThemeContext, THEME_STORAGE_KEY } from './ThemeContext'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+
+export const ThemeContext = createContext(null)
+export const THEME_STORAGE_KEY = 'app_theme_mode'
 
 const THEME_COLORS = { light: '#f5f7fb', dark: '#0a0a0b' }
 const MODES = ['light', 'dark', 'system']
@@ -17,7 +19,7 @@ function systemPrefersDark() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
 }
 
-export default function ThemeProvider({ children }) {
+export function ThemeProvider({ children }) {
   const [mode, setModeState] = useState(readStoredMode)
   const [systemDark, setSystemDark] = useState(systemPrefersDark)
 
@@ -64,3 +66,15 @@ export default function ThemeProvider({ children }) {
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
+
+export function useTheme() {
+  const ctx = useContext(ThemeContext)
+  if (!ctx) {
+    // Defensive guard: during StrictMode's double render or provider not yet ready,
+    // return a safe default instead of throwing to prevent render crashes.
+    return { mode: 'system', resolvedTheme: 'light', isDark: false, setMode: () => {}, toggle: () => {} }
+  }
+  return ctx
+}
+
+export default ThemeProvider

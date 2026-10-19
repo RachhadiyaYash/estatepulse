@@ -3,7 +3,7 @@ import { Badge, ScoreBadge, StageBadge } from "../../ui/Badge";
 import LeadQuickActions from "./LeadQuickActions";
 import LeadDetailModal from "./LeadDetailModal";
 import BookAppointmentModal from "../appointments/BookAppointmentModal";
-import { initials } from "../../../utils/format";
+import { initials } from "../../utils/format.js";
 import { useState } from "react";
 
 const HEADS = [
@@ -38,16 +38,6 @@ const LeadsTable = ({ leads }) => {
             </tr>
           </thead>
           <tbody>
-            {leads.length === 0 && (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="p-8 text-center text-on-surface-muted"
-                >
-                  No leads match your filter.
-                </td>
-              </tr>
-            )}
             {leads.map((lead) => (
               <tr
                 key={lead.id}
@@ -88,7 +78,10 @@ const LeadsTable = ({ leads }) => {
                   {lead.source}
                 </td>
                 <td className={TD}>
-                  <LeadQuickActions lead={lead} onBookVisit={(leadId) => setBookLeadId(leadId)} />
+                  <LeadQuickActions
+                    lead={lead}
+                    onBookVisit={(leadId) => setBookLeadId(leadId)}
+                  />
                 </td>
               </tr>
             ))}

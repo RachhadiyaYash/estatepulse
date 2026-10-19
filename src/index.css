@@ -230,6 +230,13 @@
   font-feature-settings: "tnum";
 }
 
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility kicker {
   text-transform: uppercase;
   letter-spacing: 0.12em;

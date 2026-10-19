@@ -1,4 +1,5 @@
 import { supabase } from "../../supabase.js";
+import { formatLakhRange } from "../../../components/utils/format.js";
 
 /**
  * Properties service — backed by the `public.properties` table:
@@ -84,21 +85,9 @@ export function deserializeProperty(row) {
     under_development: "primary",
     prelaunch: "warning",
   };
-  const fmtINR = (n) => {
-    if (n == null || n === "") return null;
-    const num = Number(n);
-    if (Number.isNaN(num)) return null;
-    if (num >= 1_00_00_000)
-      return `₹${(num / 1_00_00_000).toFixed(num % 1_00_00_000 === 0 ? 0 : 1)}Cr`;
-    if (num >= 1_00_000)
-      return `₹${(num / 1_00_000).toFixed(num % 1_00_000 === 0 ? 0 : 1)}L`;
-    return `₹${num.toLocaleString("en-IN")}`;
-  };
-  const lo = fmtINR(row.price_min);
-  const hi = fmtINR(row.price_max);
   const configs = Array.isArray(row.configurations)
     ? row.configurations.map((c) =>
-        typeof c === "string" ? c : c?.label || c?.name || JSON.stringify(c)
+        typeof c === "string" ? c : c?.label || c?.name || JSON.stringify(c),
       )
     : [];
   return {
@@ -108,8 +97,7 @@ export function deserializeProperty(row) {
     status: statusMap[row.status] ?? "Pre-Launch",
     statusKey: row.status ?? "prelaunch",
     tone: toneMap[row.status] ?? "warning",
-    priceRange:
-      lo && hi ? `${lo} - ${hi}` : lo ?? hi ?? "—",
+    priceRange: formatLakhRange(row.price_min, row.price_max),
     totalUnits: row.total_units ?? 0,
     availableUnits: row.available_units ?? 0,
     bookedUnits:

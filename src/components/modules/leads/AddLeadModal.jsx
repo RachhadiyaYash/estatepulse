@@ -2,41 +2,60 @@ import { useState } from "react";
 import { Modal, ModalBody } from "../../ui/Modal";
 import { Button } from "../../ui/Button";
 import { Field, FormRow, Input, Select } from "../../ui/Form";
-import { useToast } from "../../../store/useToast";
+import { useToast } from "../../store/useToast";
 import { addLead, serializeLead } from "../../../supabase/services/leads/leads";
 import { recordLeadActivity } from "../../../supabase/services/leads/leadActivity";
 import { useProperties } from "../../../supabase/services/properties/useProperties";
-import { AGENTS } from "../../../data/seed";
+import { useProfiles } from "../../../supabase/services/profiles/useProfiles";
 
-const AddLeadModal = ({ isOpen, onClose }) => {
+const AddLeadModal = ({ isOpen, onClose, onCreated }) => {
   const { toast } = useToast();
   const properties = useProperties();
+  const { users, loading: usersLoading } = useProfiles();
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
-    budget: "",
+    budgetMin: "",
+    budgetMax: "",
     projectId: "",
-    agentId: AGENTS[0].id,
+    agentId: "",
     score: "WARM",
     source: "Google Ads",
   });
   const [submitting, setSubmitting] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  // Default the agent selection to the first portal user once the list loads.
+  const defaultAgentId = users[0]?.id ?? "";
+
   const submit = async (e) => {
     e.preventDefault();
+    const budgetMin = Number(form.budgetMin);
+    const budgetMax = Number(form.budgetMax);
+    if (!Number.isFinite(budgetMin) || budgetMin <= 0) {
+      toast("Enter a valid minimum price.", "error");
+      return;
+    }
+    if (!Number.isFinite(budgetMax) || budgetMax < budgetMin) {
+      toast("Maximum price must be >= minimum price.", "error");
+      return;
+    }
     setSubmitting(true);
     try {
       const resolvedProjectId = form.projectId || properties[0]?.id || "";
-      const project = properties.find((p) => String(p.id) === String(resolvedProjectId));
-      const agent = AGENTS.find((a) => a.id === form.agentId);
+      const project = properties.find(
+        (p) => String(p.id) === String(resolvedProjectId),
+      );
+      const agentId = form.agentId || defaultAgentId;
+      const agent = users.find((u) => String(u.id) === String(agentId));
       const row = serializeLead(
         { ...form, projectId: resolvedProjectId },
         {
           projectName: project ? project.name : "General Inquiry",
-        agentName: agent ? agent.name : null,
-      });
+          agentName: agent ? agent.name : null,
+        },
+      );
       const created = await addLead(row);
       try {
         await recordLeadActivity({
@@ -49,6 +68,8 @@ const AddLeadModal = ({ isOpen, onClose }) => {
         console.error("Failed to record lead creation activity:", activityErr);
       }
       onClose();
+      toast("Lead created & assigned.", "success");
+      onCreated?.(created);
     } catch (err) {
       toast(err.message || "Could not create lead. Please try again.", "error");
     } finally {
@@ -82,6 +103,20 @@ const AddLeadModal = ({ isOpen, onClose }) => {
             onChange={set("name")}
             placeholder="e.g. Jonathan Vance"
           />
+        </Field>{" "}
+        <Field label="Target Development / Project">
+          <Select required value={form.projectId} onChange={set("projectId")}>
+            <option value="" disabled>
+              {properties.length === 0
+                ? "No developments yet — add one first"
+                : "Select a development"}
+            </option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} ({p.location})
+              </option>
+            ))}
+          </Select>
         </Field>
         <FormRow>
           <Field label="Phone Number *">
@@ -103,23 +138,26 @@ const AddLeadModal = ({ isOpen, onClose }) => {
           </Field>
         </FormRow>
         <FormRow>
-          <Field label="Target Development / Project">
-            <Select required value={form.projectId} onChange={set("projectId")}>
-              <option value="" disabled>
-                {properties.length === 0 ? "No developments yet — add one first" : "Select a development"}
-              </option>
-              {properties.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.location})
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Budget Range">
+          <Field label="Minimum Price (Rs) *">
             <Input
-              value={form.budget}
-              onChange={set("budget")}
-              placeholder="e.g. $1.5M - $2.5M"
+              required
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.budgetMin}
+              onChange={set("budgetMin")}
+              placeholder="e.g. 12000000"
+            />
+          </Field>
+          <Field label="Maximum Price (Rs) *">
+            <Input
+              required
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.budgetMax}
+              onChange={set("budgetMax")}
+              placeholder="e.g. 40000000"
             />
           </Field>
         </FormRow>
@@ -144,10 +182,21 @@ const AddLeadModal = ({ isOpen, onClose }) => {
           </Field>
         </FormRow>
         <Field label="Assigned Broker / Agent">
-          <Select value={form.agentId} onChange={set("agentId")}>
-            {AGENTS.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
+          <Select
+            value={form.agentId || defaultAgentId}
+            onChange={set("agentId")}
+          >
+            <option value="" disabled>
+              {usersLoading
+                ? "Loading portal users…"
+                : users.length === 0
+                  ? "No portal users found"
+                  : "Select a portal user"}
+            </option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+                {u.email ? ` (${u.email})` : ""}
               </option>
             ))}
           </Select>
