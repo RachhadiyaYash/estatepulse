@@ -54,8 +54,21 @@ export async function uploadPropertyImage(file) {
     .from("property-images")
     .upload(path, file, { contentType: file.type, upsert: false });
 
-  if (error) throw error;
+  if (error) {
+    if (isBucketMissingError(error)) {
+      throw new Error(
+        "Storage bucket 'property-images' not found. Run propertyImages.sql in Supabase SQL Editor, then retry."
+      );
+    }
+    throw error;
+  }
   return path;
+}
+
+/** True when the `property-images` bucket hasn't been created yet. */
+function isBucketMissingError(error) {
+  const msg = `${error?.message || ""} ${error?.code || ""}`.toLowerCase();
+  return msg.includes("bucket") && msg.includes("not found");
 }
 
 /** Public URL for a stored image path (bucket must be public — see SQL). */
